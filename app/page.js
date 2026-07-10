@@ -45,6 +45,8 @@ const achievements = [{ metric: "31%", description: "faster changeovers", contex
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState("light");
+  const [themeReady, setThemeReady] = useState(false);
   const [emailCopied, setEmailCopied] = useState(false);
   const [portfolioSkills, setPortfolioSkills] = useState(skills);
   const [portfolioExperiences, setPortfolioExperiences] = useState(experiences);
@@ -54,6 +56,19 @@ export default function Home() {
   const [portfolioEducation, setPortfolioEducation] = useState(education);
   const [portfolioAchievements, setPortfolioAchievements] = useState(achievements);
   const email = portfolioProfile.email || profile.email;
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem("portfolio-theme");
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    setTheme(savedTheme || systemTheme);
+    setThemeReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!themeReady) return;
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem("portfolio-theme", theme);
+  }, [theme, themeReady]);
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
@@ -110,13 +125,17 @@ export default function Home() {
     setMenuOpen(false);
   }
 
+  function toggleTheme() {
+    setTheme((currentTheme) => currentTheme === "dark" ? "light" : "dark");
+  }
+
   return (
     <div className="site-shell" id="top">
       <header className="topbar">
         <a className="brand" href="#top"><span className="brand-mark">F</span><span>Fahzri / Eng.</span></a>
         <button className={`menu-toggle${menuOpen ? " is-open" : ""}`} type="button" aria-expanded={menuOpen} aria-controls="main-nav" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}><span></span><span></span><span></span></button>
         <nav className={`main-nav${menuOpen ? " is-open" : ""}`} id="main-nav" aria-label="Main navigation">
-          <a href="#about" onClick={closeMenu}>About</a><a href="#experience" onClick={closeMenu}>Experience</a><a href="#projects" onClick={closeMenu}>Projects</a><a href="#contact" onClick={closeMenu}>Contact</a><a className="nav-cta" href="#contact" onClick={closeMenu}>Let&apos;s talk <span>↗</span></a>
+          <a href="#about" onClick={closeMenu}>About</a><a href="#experience" onClick={closeMenu}>Experience</a><a href="#projects" onClick={closeMenu}>Projects</a><a href="#contact" onClick={closeMenu}>Contact</a><a className="nav-cta" href="#contact" onClick={closeMenu}>Let&apos;s talk <span>↗</span></a><button className={`theme-switch${theme === "dark" ? " is-dark" : ""}`} type="button" onClick={toggleTheme} aria-pressed={theme === "dark"} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}><span className="theme-icon theme-sun" aria-hidden="true">☼</span><span className="theme-thumb" aria-hidden="true"></span><span className="theme-icon theme-moon" aria-hidden="true">☾</span></button>
         </nav>
       </header>
 
