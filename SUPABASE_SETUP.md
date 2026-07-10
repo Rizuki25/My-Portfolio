@@ -42,6 +42,10 @@ Saat halaman `/` dibuka, aplikasi mengambil `skill_groups`, `experiences`, `proj
 
 Buat bucket public bernama `portfolio-assets` di **Storage** untuk foto profil, proyek, dan sertifikat. Lalu jalankan isi `supabase/migrations/202607100002_portfolio_assets_policies.sql` di SQL Editor. Public bucket cocok untuk visual yang memang tampil di portofolio; policy tersebut membatasi upload, penggantian, dan penghapusan hanya untuk admin.
 
+## 6. Gallery gambar proyek
+
+Untuk proyek Supabase yang sudah dibuat sebelumnya, jalankan seluruh isi `supabase/migrations/202607100003_project_image_gallery.sql` di **SQL Editor**. Migrasi ini menambahkan kolom gallery gambar pada Projects dan otomatis menjadikan gambar proyek lama sebagai slide pertama.
+
 ## Alur data
 
 ```text

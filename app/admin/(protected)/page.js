@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../../../lib/supabase/browser";
 import styles from "../admin.module.css";
+import galleryStyles from "../gallery.module.css";
 
 const resources = {
   profiles: {
@@ -34,8 +35,9 @@ const resources = {
     table: "projects",
     arrayFields: ["tags"],
     assetField: "image_path",
+    multiAssetField: "image_paths",
     assetFolder: "projects",
-    blank: { title: "", slug: "", category: "", summary: "", tags: "", accent: "amber", case_study_url: "", image_path: "", sort_order: 1, is_published: true },
+    blank: { title: "", slug: "", category: "", summary: "", tags: "", accent: "amber", case_study_url: "", image_path: "", image_paths: [], sort_order: 1, is_published: true },
     fields: [
       { name: "title", label: "Project title", type: "text", required: true },
       { name: "slug", label: "Slug URL", type: "text", hint: "Kosongkan untuk dibuat otomatis dari judul." },
@@ -124,6 +126,7 @@ function slugify(value) {
 function toForm(resource, row) {
   const next = { ...resource.blank, ...row };
   resource.arrayFields?.forEach((field) => { next[field] = (row[field] || []).join(", "); });
+  if (resource.multiAssetField) next[resource.multiAssetField] = row[resource.multiAssetField]?.length ? row[resource.multiAssetField] : row[resource.assetField] ? [row[resource.assetField]] : [];
   return next;
 }
 
@@ -185,31 +188,46 @@ export default function AdminPage() {
   }
 
   async function uploadAsset(event) {
-    const file = event.target.files?.[0];
-    if (!file || !resource.assetField) return;
-    if (!file.type.startsWith("image/")) {
+    const files = Array.from(event.target.files || []);
+    if (!files.length || !resource.assetField) return;
+    if (files.some((file) => !file.type.startsWith("image/"))) {
       setStatus("Pilih file gambar yang valid.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setStatus("Ukuran gambar maksimal 5 MB.");
+    if (files.some((file) => file.size > 5 * 1024 * 1024)) {
+      setStatus("Setiap gambar maksimal berukuran 5 MB.");
       return;
     }
 
     const supabase = getSupabaseBrowserClient();
-    const extension = file.name.includes(".") ? file.name.split(".").pop().toLowerCase() : "jpg";
-    const uniqueName = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const path = `${resource.assetFolder}/${uniqueName}.${extension}`;
-    setUploadingField(resource.assetField);
+    const uploadField = resource.multiAssetField || resource.assetField;
+    setUploadingField(uploadField);
     setStatus("");
-    const { error } = await supabase.storage.from("portfolio-assets").upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: false });
-    setUploadingField("");
-    if (error) {
-      setStatus(error.message);
+    let uploads;
+    try {
+      uploads = await Promise.all(files.map(async (file) => {
+        const extension = file.name.includes(".") ? file.name.split(".").pop().toLowerCase() : "jpg";
+        const uniqueName = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const path = `${resource.assetFolder}/${uniqueName}.${extension}`;
+        const { error } = await supabase.storage.from("portfolio-assets").upload(path, file, { cacheControl: "3600", contentType: file.type, upsert: false });
+        if (error) throw error;
+        return path;
+      }));
+    } catch (error) {
+      setUploadingField("");
+      setStatus(error.message || "Gagal mengunggah gambar.");
       return;
     }
-    updateField(resource.assetField, path);
-    setStatus("Gambar terunggah. Simpan formulir untuk menautkannya ke konten ini.");
+    setUploadingField("");
+    if (resource.multiAssetField) setForm((current) => ({ ...current, [resource.multiAssetField]: [...(current[resource.multiAssetField] || []), ...uploads] }));
+    else updateField(resource.assetField, uploads[0]);
+    event.target.value = "";
+    setStatus(`${uploads.length} gambar terunggah. Simpan formulir untuk menautkannya ke konten ini.`);
+  }
+
+  function removeGalleryImage(path) {
+    if (!resource.multiAssetField) return;
+    setForm((current) => ({ ...current, [resource.multiAssetField]: (current[resource.multiAssetField] || []).filter((item) => item !== path) }));
   }
 
   async function saveRecord(event) {
@@ -221,6 +239,10 @@ export default function AdminPage() {
     if (resource.hasSort !== false) payload.sort_order = Number(form.sort_order) || 1;
     resource.arrayFields?.forEach((field) => { payload[field] = String(payload[field]).split(",").map((item) => item.trim()).filter(Boolean); });
     resource.numberFields?.forEach((field) => { payload[field] = Number(payload[field]); });
+    if (resource.multiAssetField) {
+      payload[resource.multiAssetField] = Array.isArray(payload[resource.multiAssetField]) ? payload[resource.multiAssetField] : [];
+      payload[resource.assetField] = payload[resource.multiAssetField][0] || null;
+    }
     if (activeKey === "projects" && !payload.slug) payload.slug = slugify(payload.title);
 
     setIsSaving(true);
@@ -287,7 +309,7 @@ export default function AdminPage() {
                     : <input type={field.type} value={form[field.name] ?? ""} onChange={(event) => updateField(field.name, event.target.value)} required={field.required} />}
                 {field.hint && <small>{field.hint}</small>}
               </label>)}
-              {resource.assetField && <label>Image asset<input type="file" accept="image/*" onChange={uploadAsset} disabled={Boolean(uploadingField)} />{uploadingField && <small>Uploading image…</small>}{form[resource.assetField] && <small>Stored path: {form[resource.assetField]}</small>}</label>}
+              {resource.assetField && <label>{resource.multiAssetField ? "Project image gallery" : "Image asset"}<input type="file" accept="image/*" multiple={Boolean(resource.multiAssetField)} onChange={uploadAsset} disabled={Boolean(uploadingField)} />{uploadingField && <small>Uploading image…</small>}{resource.multiAssetField ? <div className={galleryStyles.galleryPaths}>{(form[resource.multiAssetField] || []).length === 0 ? <small>Upload one or more images. The first image becomes the cover.</small> : (form[resource.multiAssetField] || []).map((path, index) => <div key={path}><span>{String(index + 1).padStart(2, "0")}. {path.split("/").pop()}</span><button type="button" onClick={() => removeGalleryImage(path)} aria-label={`Remove image ${index + 1}`}>Remove</button></div>)}</div> : form[resource.assetField] && <small>Stored path: {form[resource.assetField]}</small>}</label>}
               <div className={styles.inlineFields}>{resource.hasSort !== false && <label>Display order<input type="number" min="1" value={form.sort_order ?? 1} onChange={(event) => updateField("sort_order", event.target.value)} /></label>}<label className={styles.checkboxLabel}><input type="checkbox" checked={Boolean(form.is_published)} onChange={(event) => updateField("is_published", event.target.checked)} /> Published</label></div>
             </div>
             {status && <p className={styles.formMessage}>{status}</p>}

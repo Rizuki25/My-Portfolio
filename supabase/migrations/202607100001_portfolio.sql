@@ -54,6 +54,7 @@ create table public.projects (
   tags text[] not null default '{}',
   accent text not null default 'amber' check (accent in ('amber', 'mint', 'violet')),
   image_path text,
+  image_paths text[] not null default '{}',
   case_study_url text,
   sort_order integer not null default 0,
   is_published boolean not null default true,

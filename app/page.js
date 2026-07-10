@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getPortfolioAssetUrl, getSupabaseBrowserClient } from "../lib/supabase/browser";
 
 const skills = [
@@ -48,6 +48,35 @@ const navigationItems = [
   { id: "projects", label: "Projects", number: "04" },
   { id: "contact", label: "Contact", number: "08" },
 ];
+
+function ProjectGallery({ images, title }) {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const swipeStart = useRef(null);
+  const hasMultipleImages = images.length > 1;
+
+  useEffect(() => {
+    if (!hasMultipleImages) return;
+    const timer = window.setInterval(() => setActiveSlide((current) => (current + 1) % images.length), 2000);
+    return () => window.clearInterval(timer);
+  }, [activeSlide, hasMultipleImages, images.length]);
+
+  function showSlide(nextSlide) {
+    setActiveSlide((nextSlide + images.length) % images.length);
+  }
+
+  function finishSwipe(event) {
+    if (swipeStart.current === null) return;
+    const distance = event.clientX - swipeStart.current;
+    swipeStart.current = null;
+    if (Math.abs(distance) < 35) return;
+    showSlide(activeSlide + (distance < 0 ? 1 : -1));
+  }
+
+  return <div className="project-gallery" onPointerDown={(event) => { swipeStart.current = event.clientX; }} onPointerUp={finishSwipe} onPointerCancel={() => { swipeStart.current = null; }}>
+    <div className="project-gallery-track" style={{ transform: `translateX(-${activeSlide * 100}%)` }}>{images.map((image, imageIndex) => <img className="project-image" src={image} alt={`${title} — image ${imageIndex + 1}`} key={image} />)}</div>
+    {hasMultipleImages && <><button className="gallery-arrow gallery-arrow-prev" type="button" onClick={() => showSlide(activeSlide - 1)} aria-label={`Previous image for ${title}`}>←</button><button className="gallery-arrow gallery-arrow-next" type="button" onClick={() => showSlide(activeSlide + 1)} aria-label={`Next image for ${title}`}>→</button><div className="gallery-dots" aria-label={`Image selection for ${title}`}>{images.map((image, imageIndex) => <button type="button" className={activeSlide === imageIndex ? "is-active" : ""} onClick={() => showSlide(imageIndex)} aria-label={`Show image ${imageIndex + 1}`} aria-current={activeSlide === imageIndex} key={image}></button>)}</div></>}
+  </div>;
+}
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -98,7 +127,7 @@ export default function Home() {
         supabase.from("profiles").select("*").eq("profile_key", "main").eq("is_published", true).maybeSingle(),
         supabase.from("skill_groups").select("title, items, sort_order").eq("is_published", true).order("sort_order"),
         supabase.from("experiences").select("start_label, role, company, description, sort_order").eq("is_published", true).order("sort_order"),
-        supabase.from("projects").select("accent, category, title, summary, tags, image_path, case_study_url, sort_order").eq("is_published", true).order("sort_order"),
+        supabase.from("projects").select("accent, category, title, summary, tags, image_path, image_paths, case_study_url, sort_order").eq("is_published", true).order("sort_order"),
         supabase.from("certificates").select("accent, code, title, issuer, issued_year, image_path, credential_url, sort_order").eq("is_published", true).order("sort_order"),
         supabase.from("education").select("institution, degree, period_label, detail, sort_order").eq("is_published", true).order("sort_order"),
         supabase.from("achievements").select("metric, description, context, sort_order").eq("is_published", true).order("sort_order"),
@@ -114,7 +143,10 @@ export default function Home() {
         setPortfolioExperiences(experiencesResult.data.map(({ start_label, role, company, description }) => ({ period: start_label, role, company, copy: description })));
       }
       if (!projectsResult.error && projectsResult.data?.length) {
-        setPortfolioProjects(projectsResult.data.map(({ accent, category, title, summary, tags, image_path, case_study_url }) => ({ tone: accent, type: category, title, copy: summary, tags, imageUrl: getPortfolioAssetUrl(image_path), url: case_study_url })));
+        setPortfolioProjects(projectsResult.data.map(({ accent, category, title, summary, tags, image_path, image_paths, case_study_url }) => {
+          const paths = image_paths?.length ? image_paths : image_path ? [image_path] : [];
+          return { tone: accent, type: category, title, copy: summary, tags, imageUrls: paths.map(getPortfolioAssetUrl).filter(Boolean), url: case_study_url };
+        }));
       }
       if (!certificatesResult.error && certificatesResult.data?.length) {
         setPortfolioCertificates(certificatesResult.data.map(({ accent, code, title, issuer, issued_year, image_path, credential_url }) => ({ tone: accent, code, title, issuer: `${issuer} · ${issued_year}`, imageUrl: getPortfolioAssetUrl(image_path), url: credential_url })));
@@ -206,7 +238,7 @@ export default function Home() {
         </div></section>
 
         <section className="section-block" id="projects"><div className="section-heading-row"><div><div className="section-marker">04 / selected work</div><h2>Built to be<br /><span>used.</span></h2></div><p className="heading-aside">A few systems, products, and experiments I&apos;m proud to have moved forward.</p></div><div className="projects-grid">
-          {portfolioProjects.map((project, index) => <article className={`project-card project-${project.tone}`} key={project.title}><div className="project-art">{project.imageUrl && <img className="project-image" src={project.imageUrl} alt={project.title} />}<span className="project-number">{String(index + 1).padStart(2, "0")}</span><span className="art-cross">+</span><div className="art-bars"><i></i><i></i><i></i><i></i></div><div className="art-ring"></div></div><div className="project-copy"><p className="project-type">{project.type}</p><h3>{project.title}</h3><p>{project.copy}</p><div className="tag-row">{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div></div><a className="project-link" href={project.url || "#contact"} target={project.url ? "_blank" : undefined} rel={project.url ? "noreferrer" : undefined}>View case study <span>↗</span></a></article>)}
+          {portfolioProjects.map((project, index) => <article className={`project-card project-${project.tone}`} key={project.title}><div className="project-art">{project.imageUrls?.length ? <ProjectGallery images={project.imageUrls} title={project.title} /> : <><div className="art-bars"><i></i><i></i><i></i><i></i></div><div className="art-ring"></div></>}<span className="project-number">{String(index + 1).padStart(2, "0")}</span><span className="art-cross">+</span></div><div className="project-copy"><p className="project-type">{project.type}</p><h3>{project.title}</h3><p>{project.copy}</p><div className="tag-row">{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div></div><a className="project-link" href={project.url || "#contact"} target={project.url ? "_blank" : undefined} rel={project.url ? "noreferrer" : undefined}>View case study <span>↗</span></a></article>)}
         </div></section>
 
         <section className="section-block cert-section" id="certificates"><div className="section-heading-row"><div><div className="section-marker">05 / proof of practice</div><h2>Always learning.<br /><span>Quietly consistent.</span></h2></div><p className="heading-aside">Selected certificates that support the work—not replace the work.</p></div><div className="cert-grid">
