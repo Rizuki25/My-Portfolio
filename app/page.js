@@ -42,11 +42,19 @@ const profile = {
 
 const education = [{ period: "2016 — 2020", degree: "Bachelor of Mechanical Engineering", institution: "Institut Teknologi Bandung", detail: "GPA 3.72 / 4.00 · Focus: product design, manufacturing systems, materials" }];
 const achievements = [{ metric: "31%", description: "faster changeovers", context: "Line 04, 2024" }, { metric: "18%", description: "lighter enclosure", context: "Aero housing, 2023" }, { metric: "1st", description: "campus design challenge", context: "National finalist, 2019" }];
+const navigationItems = [
+  { id: "about", label: "About", number: "01" },
+  { id: "experience", label: "Experience", number: "03" },
+  { id: "projects", label: "Projects", number: "04" },
+  { id: "contact", label: "Contact", number: "08" },
+];
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState("light");
   const [themeReady, setThemeReady] = useState(false);
+  const [activeMenu, setActiveMenu] = useState("about");
+  const [isMenuTransitioning, setIsMenuTransitioning] = useState(false);
   const [emailCopied, setEmailCopied] = useState(false);
   const [portfolioSkills, setPortfolioSkills] = useState(skills);
   const [portfolioExperiences, setPortfolioExperiences] = useState(experiences);
@@ -69,6 +77,17 @@ export default function Home() {
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem("portfolio-theme", theme);
   }, [theme, themeReady]);
+
+  useEffect(() => {
+    const sections = navigationItems.map(({ id }) => document.getElementById(id)).filter(Boolean);
+    const observer = new IntersectionObserver((entries) => {
+      const visibleSection = entries.find((entry) => entry.isIntersecting);
+      if (visibleSection) setActiveMenu(visibleSection.target.id);
+    }, { rootMargin: "-42% 0px -48% 0px", threshold: 0 });
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
@@ -129,15 +148,36 @@ export default function Home() {
     setTheme((currentTheme) => currentTheme === "dark" ? "light" : "dark");
   }
 
+  function navigateToMenu(event, id) {
+    event?.preventDefault();
+    closeMenu();
+    setActiveMenu(id);
+    setIsMenuTransitioning(true);
+    window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+    window.setTimeout(() => setIsMenuTransitioning(false), 780);
+  }
+
+  function moveCarousel(direction) {
+    const currentIndex = navigationItems.findIndex((item) => item.id === activeMenu);
+    const nextIndex = (currentIndex + direction + navigationItems.length) % navigationItems.length;
+    navigateToMenu(null, navigationItems[nextIndex].id);
+  }
+
+  const activeMenuIndex = Math.max(0, navigationItems.findIndex((item) => item.id === activeMenu));
+  const activeMenuItem = navigationItems[activeMenuIndex];
+
   return (
     <div className="site-shell" id="top">
       <header className="topbar">
         <a className="brand" href="#top"><span className="brand-mark">F</span><span>Fahzri / Eng.</span></a>
         <button className={`menu-toggle${menuOpen ? " is-open" : ""}`} type="button" aria-expanded={menuOpen} aria-controls="main-nav" aria-label="Toggle navigation" onClick={() => setMenuOpen(!menuOpen)}><span></span><span></span><span></span></button>
         <nav className={`main-nav${menuOpen ? " is-open" : ""}`} id="main-nav" aria-label="Main navigation">
-          <a href="#about" onClick={closeMenu}>About</a><a href="#experience" onClick={closeMenu}>Experience</a><a href="#projects" onClick={closeMenu}>Projects</a><a href="#contact" onClick={closeMenu}>Contact</a><a className="nav-cta" href="#contact" onClick={closeMenu}>Let&apos;s talk <span>↗</span></a><button className={`theme-switch${theme === "dark" ? " is-dark" : ""}`} type="button" onClick={toggleTheme} aria-pressed={theme === "dark"} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}><span className="theme-icon theme-sun" aria-hidden="true">☼</span><span className="theme-thumb" aria-hidden="true"></span><span className="theme-icon theme-moon" aria-hidden="true">☾</span></button>
+          {navigationItems.map((item) => <a className={activeMenu === item.id ? "is-current" : ""} href={`#${item.id}`} onClick={(event) => navigateToMenu(event, item.id)} key={item.id}>{item.label}</a>)}<a className="nav-cta" href="#contact" onClick={(event) => navigateToMenu(event, "contact")}>Let&apos;s talk <span>↗</span></a><button className={`theme-switch${theme === "dark" ? " is-dark" : ""}`} type="button" onClick={toggleTheme} aria-pressed={theme === "dark"} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}><span className="theme-icon theme-sun" aria-hidden="true">☼</span><span className="theme-thumb" aria-hidden="true"></span><span className="theme-icon theme-moon" aria-hidden="true">☾</span></button>
         </nav>
       </header>
+
+      <div className={`menu-wipe${isMenuTransitioning ? " is-active" : ""}`} aria-hidden="true"><div className="menu-wipe-panel menu-wipe-panel-left"></div><div className="menu-wipe-panel menu-wipe-panel-right"></div><p><span>{activeMenuItem.number}</span> {activeMenuItem.label}</p></div>
+      <aside className="section-carousel" aria-label="Section carousel navigation"><button type="button" onClick={() => moveCarousel(-1)} aria-label="Previous section">←</button><div className="carousel-window"><div className="carousel-track" style={{ transform: `translateX(-${activeMenuIndex * 100}%)` }}>{navigationItems.map((item) => <button type="button" className="carousel-slide" onClick={(event) => navigateToMenu(event, item.id)} key={item.id}><span>{item.number} / 08</span><strong>{item.label}</strong></button>)}</div></div><button type="button" onClick={() => moveCarousel(1)} aria-label="Next section">→</button></aside>
 
       <main>
         <section className="hero">
