@@ -1,0 +1,24 @@
+{
+  "name": "my-porftolio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Bento Grid Neo-Brutalist Tech Editorial portfolio — Vite + React + Tailwind CSS v4",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "node --test",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "tailwindcss": "^4.0.0",
+    "vite": "^6.0.0"
+  }
+}

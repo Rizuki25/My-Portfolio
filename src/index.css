@@ -1,0 +1,272 @@
+@import "tailwindcss";
+
+/* Class-based dark mode (Tailwind v4 butuh variant eksplisit) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   DESIGN TOKENS — Warm Editorial Mosaic
+   --------------------------------------------------------------------------
+   Semua warna didefinisikan sebagai CSS variable oleh @theme, lalu
+   utilities Tailwind (bg-paper, text-ink, border-ink, dst.) mereferensikan
+   var(...) tersebut. Artinya: meng-override variable di bawah `.dark`
+   otomatis membalik SELURUH palet tanpa perlu menulis ulang class.
+   ========================================================================== */
+@theme {
+  /* breakpoint tambahan untuk layar sempit (portrait) */
+  --breakpoint-xs: 26rem;
+
+  /* permukaan */
+  --color-paper: #f7ede5;      /* krem pucat seperti latar referensi    */
+  --color-paper-2: #b4c471;    /* hijau sage untuk kartu sekunder      */
+  --color-card: #fff7f1;       /* permukaan kartu krem                  */
+
+  /* tinta */
+  --color-ink: #292724;        /* border + teks utama, charcoal         */
+  --color-ink-soft: #4b4640;   /* teks sekunder                         */
+
+  /* aksen */
+  --color-acid: #ffbf2c;       /* kuning keemasan untuk kartu & hover   */
+  --color-acid-deep: #e99116;  /* bayangan / garis aksen                */
+  --color-acid-text: #ffbf2c;  /* teks kuning pada kartu inverse        */
+  --color-flag: #f37b08;       /* oranye untuk badge & kartu khusus     */
+  --color-flag-text: #813000;  /* oranye gelap agar label mudah dibaca  */
+  --color-on-flag: #292724;    /* teks pada bidang oranye               */
+  --color-azure: #813000;      /* fokus keyboard                        */
+
+  /* tipografi */
+  --font-display: "Archivo Black", "Arial Black", Impact, sans-serif;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ---------- inversi tema gelap ---------- */
+.dark {
+  --color-paper: #211f1d;
+  --color-paper-2: #394329;
+  --color-card: #2c2a27;
+  --color-ink: #f7ede5;
+  --color-ink-soft: #d3c7b9;
+  --color-acid: #5a4315;
+  --color-acid-deep: #9b6a1a;
+  --color-acid-text: #8b4d00;
+  --color-flag: #ffad55;
+  --color-flag-text: #ffba70;
+  --color-on-flag: #292724;
+  --color-azure: #ffba70;
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* Heading display rapat & padat khas editorial brutalist */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+::selection {
+  background: var(--color-acid);
+  color: var(--color-ink);
+}
+
+/*Scrollbar tipis untuk strip navigasi & halaman */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink) transparent;
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--color-ink);
+  border: 3px solid var(--color-paper);
+}
+
+/* Fokus keyboard yang jelas — tetap on-brand */
+:focus-visible {
+  outline: 3px solid var(--color-azure);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   BRUTALIST UTILITIES
+   ========================================================================== */
+
+/* Kartu bento: border tebal + hard shadow offset tanpa blur */
+@utility brutal-card {
+  position: relative;
+  border: 3px solid var(--color-ink);
+  background-color: var(--color-card);
+  box-shadow: 5px 5px 0 0 var(--color-ink);
+  transition:
+    transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    color 0.35s ease;
+}
+
+/* Varian permukaan kartu */
+@utility brutal-acid {
+  background-color: var(--color-acid);
+  color: var(--color-ink);
+}
+@utility brutal-paper { background-color: var(--color-paper); }
+@utility brutal-paper2 { background-color: var(--color-paper-2); }
+@utility brutal-ink {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+}
+@utility brutal-flag {
+  background-color: var(--color-flag);
+  color: var(--color-on-flag);
+  border-color: var(--color-ink);
+}
+
+/* Interaksi: terangkat saat hover, menekan saat active */
+@utility brutal-lift {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 0 var(--color-ink);
+}
+@utility brutal-lift-acid {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 0 var(--color-acid-deep);
+}
+@utility brutal-press {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 0 var(--color-ink);
+}
+
+/* Shadow aksen hangat (untuk kartu yang shadow-nya berwarna) */
+@utility shadow-acid { box-shadow: 5px 5px 0 0 var(--color-acid-deep); }
+@utility shadow-flag { box-shadow: 5px 5px 0 0 var(--color-flag); }
+
+/* ---------- pola latar editorial ---------- */
+
+/* Grid blueprint tipis */
+@utility bg-blueprint {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-ink) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-ink) 9%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Titik halftone */
+@utility bg-halftone {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--color-ink) 26%, transparent) 1.2px,
+    transparent 1.3px
+  );
+  background-size: 11px 11px;
+}
+
+/* Arsir diagonal */
+@utility bg-hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--color-ink) 16%, transparent) 0 2px,
+    transparent 2px 9px
+  );
+}
+
+/* ---------- tipografi ---------- */
+
+/* Outline text (fill transparan, stroke tinta) */
+@utility text-outline {
+  -webkit-text-stroke: 2px var(--color-ink);
+  color: transparent;
+}
+
+/* Sembunyikan scrollbar (dipakai strip navigasi horizontal di layar sempit) */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Label mono kecil khas metadata editorial */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   SCROLL REVEAL — digerakkan oleh useReveal (IntersectionObserver)
+   ========================================================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ==========================================================================
+   MARQUEE — pita teks berjalan antar section
+   ========================================================================== */
+@keyframes marquee-x {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x 26s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+
+/* Kedip untuk badge status "available" */
+@keyframes blink-dot {
+  0%, 55% { opacity: 1; }
+  56%, 100% { opacity: 0.15; }
+}
+.blink { animation: blink-dot 1.6s steps(1, end) infinite; }
+
+/* ==========================================================================
+   AKSESIBILITAS — hormati prefers-reduced-motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .marquee-track { animation: none; }
+  .blink { animation: none; }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
