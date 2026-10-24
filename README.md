@@ -192,6 +192,33 @@ agar teks kecil tetap mudah dibaca.
 
 ---
 
+## Motion
+
+Seluruh gerak memakai properti komposit (`translate`, `scale`, `rotate`, `opacity`)
+sehingga tidak memicu reflow. `translate`/`scale` dipakai — **bukan** `transform` —
+supaya reveal tidak bertabrakan dengan `hover:brutal-lift` (berbasis `transform`)
+pada kartu yang sama. Konsekuensinya, kartu bisa muncul lalu tetap terangkat saat hover.
+
+| Efek | Pemicu | Catatan |
+|---|---|---|
+| Reveal kartu | mati saat section masuk viewport (sekali jalan) | `useReveal` + class `.reveal`; jeda lewat `delay` |
+| Varian arah | prop `variant` di `BentoCell` | `left` · `right` · `down` · `scale` · `blur` · `none` |
+| Judul tersingkap | section ter-reveal | `.mask-line`, delay per baris lewat `--line-delay` |
+| Garis section tumbuh | scroll (`animation-timeline: view()`) | `[data-scroll-rule]`; fallback statis bila tak didukung |
+| Parallax nama footer | scroll | `[data-parallax="slow"]` |
+| Angka statistik berjalan | angka masuk viewport | `CountUp.jsx`, format `5+` / `38` dipertahankan |
+| Pita teks berjalan | terus-menerus, berhenti saat hover | `MarqueeBand.jsx` |
+| Sorot kursor + tilt 3D | pointer presisi | `data-spotlight` · `data-tilt="7"`; mati di layar sentuh |
+| Tukar slide proyek/skill | tombol, dot, geser, tombol panah | `swap-next` / `swap-prev`, arah mengikuti navigasi |
+| Segmen level skill | kartu skill tampil | `.level-seg` + `--seg` |
+| Rail section & tombol naik | posisi scroll | `PageChrome.jsx` (rail hanya ≥1280px) |
+
+**Aksesibilitas.** `prefers-reduced-motion: reduce` mematikan semua animasi dan
+langsung menampilkan konten (tidak ada yang tertinggal transparan). Tanpa
+JavaScript, `<noscript>` di `index.html` melakukan hal yang sama.
+
+---
+
 ## Struktur
 
 ```
@@ -210,13 +237,18 @@ My-Porftolio/
    ├─ contexts/ContentContext.jsx  # membaca konten Supabase untuk situs
    ├─ hooks/
    │  ├─ useTheme.js           # dark/light + localStorage
-   │  ├─ useReveal.js          # scroll reveal (IntersectionObserver)
+   │  ├─ useReveal.js          # scroll reveal + varian arah + MutationObserver
+   │  ├─ usePointerFX.js       # sorot kursor & tilt 3D (delegation, rAF)
+   │  ├─ useScrolled.js        # status header menempel
    │  ├─ useScrollProgress.js  # garis progres di nav
    │  └─ useActiveSection.js   # penanda section aktif di nav
    ├─ components/
-   │  ├─ BentoCell.jsx         # unit dasar layout (prop: tone, span, hover, delay)
+   │  ├─ BentoCell.jsx         # unit dasar layout (prop: tone, span, hover, variant, delay)
    │  ├─ SectionHeader.jsx     # nomor + judul + rule editorial
    │  ├─ BrutalButton.jsx      # tombol/link brutalist
+   │  ├─ CountUp.jsx           # angka statistik berjalan
+   │  ├─ MarqueeBand.jsx       # pita teks berjalan
+   │  ├─ PageChrome.jsx        # rail section + kembali ke atas
    │  ├─ Tag.jsx               # chip metadata
    │  ├─ Primitives.jsx        # SectionShell, BentoGrid, Label, Rule, IndexBadge, CornerMark
    │  ├─ NavBar.jsx
@@ -240,6 +272,7 @@ Tiap `BentoCell` mengatur lebarnya lewat prop `span`:
 - `tone` → `card` (default) · `paper` · `paper2` · `acid` · `ink` · `flag`
 - `pad` → `none` · `sm` · `md` (default) · `lg`
 - `hover` → aktifkan efek angkat + tekan
+- `variant` → arah reveal: `left` · `right` · `down` · `scale` · `blur` · `none`
 - `delay` → jeda kemunculan (ms) untuk efek reveal bertingkat
 
 ---
@@ -250,9 +283,15 @@ Tiap `BentoCell` mengatur lebarnya lewat prop `span`:
   (`portfolio-theme`), dan skrip kecil di `index.html` memasangnya sebelum React
   mount supaya tidak ada *flash* tema salah. Tanpa preferensi tersimpan,
   mengikuti `prefers-color-scheme` sistem.
-- **Scroll reveal** — tiap kartu muncul saat masuk viewport (sekali jalan).
+- **Scroll reveal** — tiap kartu muncul saat masuk viewport (sekali jalan),
+  dengan varian arah dan jeda bertingkat.
+- **Scroll-linked** — garis judul section tumbuh saat masuk layar, nama besar di
+  footer bergerak pelan (parallax), dan rail section di kanan menandai posisi.
 - **Hover** — kartu terangkat 3px dan shadow-nya membesar; menekan saat diklik.
-- **Garis progres scroll** di dasar nav + penanda section aktif.
+  Kartu identitas menyorot mengikuti kursor, potret memiringkan diri (tilt 3D).
+- **Angka statistik** berjalan dari nol saat kartu rekap masuk layar.
+- **Pita teks** di antara Home dan About berhenti bergerak saat di-hover.
+- **Garis progres scroll** di dasar nav + tombol kembali ke atas setelah 10%.
 - **Salin email** satu klik di section Contact.
 - **FAQ akordeon** dengan transisi tinggi berbasis `grid-template-rows`.
 - **`prefers-reduced-motion`** dihormati: semua animasi & transisi dimatikan.

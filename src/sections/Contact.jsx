@@ -43,6 +43,7 @@ export default function Contact() {
           span="sm:col-span-2 lg:col-span-2"
           pad="lg"
           hover
+          data-spotlight
           className="bg-halftone"
         >
           <div className="flex flex-wrap items-center gap-2">
@@ -79,7 +80,7 @@ export default function Contact() {
         </BentoCell>
 
         {/* ================= KANAL LANGSUNG ================= */}
-        <BentoCell tone="ink" pad="none" hover className="self-start">
+        <BentoCell tone="ink" pad="none" hover variant="right" delay={80} className="self-start">
           <div className="border-b-[3px] border-paper/25 px-4 py-2">
             <span className="label-mono text-acid-text">Kanal langsung</span>
           </div>

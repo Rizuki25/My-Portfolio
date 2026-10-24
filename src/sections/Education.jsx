@@ -29,6 +29,7 @@ export default function Education() {
             tone={i === 0 ? 'card' : 'paper2'}
             pad="none"
             hover
+            variant="scale"
             delay={i * 60}
           >
             {/* kepala */}

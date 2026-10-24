@@ -3,6 +3,7 @@ import { sections } from '../data/content'
 import { useContent } from '../contexts/ContentContext'
 import { useActiveSection } from '../hooks/useActiveSection'
 import { useScrollProgress } from '../hooks/useScrollProgress'
+import { useScrolled } from '../hooks/useScrolled'
 
 /**
  * ==========================================================================
@@ -17,11 +18,15 @@ import { useScrollProgress } from '../hooks/useScrollProgress'
 export default function NavBar({ theme, onToggleTheme }) {
   const { profile } = useContent()
   const progress = useScrollProgress()
+  const scrolled = useScrolled(10)
   const ids = useMemo(() => sections.map((s) => s.id), [])
   const active = useActiveSection(ids)
 
   return (
-    <header className="sticky top-0 z-50 border-b-[3px] border-ink bg-paper/95 backdrop-blur-sm">
+    <header
+      data-scrolled={scrolled ? 'true' : 'false'}
+      className="sticky top-0 z-50 border-b-[3px] border-ink bg-paper/95 backdrop-blur-sm transition-[background-color,box-shadow] duration-300 data-[scrolled=true]:bg-paper data-[scrolled=true]:shadow-[0_3px_0_0_var(--color-ink)]"
+    >
       {/* ---------- baris identitas ---------- */}
       <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-3 py-2.5 sm:px-5">
         <a
@@ -75,7 +80,7 @@ export default function NavBar({ theme, onToggleTheme }) {
               href={`#${s.id}`}
               aria-current={isActive ? 'true' : undefined}
               className={[
-                'shrink-0 border-2 px-2.5 py-1 font-mono text-[0.625rem] font-bold tracking-[0.12em] uppercase',
+                'nav-chip shrink-0 border-2 px-2.5 py-1 font-mono text-[0.625rem] font-bold tracking-[0.12em] uppercase',
                 'transition-all duration-150',
                 isActive
                   ? 'border-ink bg-acid text-ink shadow-[2px_2px_0_0_var(--color-ink)]'
@@ -102,8 +107,11 @@ export default function NavBar({ theme, onToggleTheme }) {
         aria-valuemax={100}
       >
         <div
-          className="h-full bg-acid transition-[width] duration-100 ease-out"
-          style={{ width: `${progress * 100}%` }}
+          className="h-full origin-left transition-[scale] duration-150 ease-out"
+          style={{
+            scale: `${progress} 1`,
+            backgroundColor: 'var(--color-flag)',
+          }}
         />
       </div>
     </header>

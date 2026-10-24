@@ -90,16 +90,20 @@ h1, h2, h3 {
   color: var(--color-ink);
 }
 
-/*Scrollbar tipis untuk strip navigasi & halaman */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-ink) transparent;
-}
-*::-webkit-scrollbar { width: 10px; height: 10px; }
-*::-webkit-scrollbar-track { background: transparent; }
-*::-webkit-scrollbar-thumb {
-  background: var(--color-ink);
-  border: 3px solid var(--color-paper);
+/* Scrollbar tipis untuk strip navigasi & halaman.
+   Ditaruh di layer base supaya utility .no-scrollbar (layer utilities)
+   tetap bisa menimpanya — aturan unlayered akan selalu menang. */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink) transparent;
+  }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: var(--color-ink);
+    border: 3px solid var(--color-paper);
+  }
 }
 
 /* Fokus keyboard yang jelas — tetap on-brand */
@@ -216,24 +220,186 @@ h1, h2, h3 {
 }
 
 /* ==========================================================================
-   SCROLL REVEAL — digerakkan oleh useReveal (IntersectionObserver)
+   MOTION SYSTEM
+   --------------------------------------------------------------------------
+   Prinsip: hanya properti komposit (`translate`, `scale`, `rotate`, `opacity`)
+   yang dianimasikan supaya tidak memicu reflow.
+
+   `translate`/`scale` dipakai — BUKAN `transform` — agar tidak bertabrakan
+   dengan `hover:brutal-lift` yang berbasis `transform`. Dengan begitu kartu
+   bisa muncul (reveal) lalu tetap terangkat saat hover.
    ========================================================================== */
+
+:root {
+  --ease-brutal: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snap: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ---------- 1 · SCROLL REVEAL (digerakkan useReveal) ---------- */
 .reveal {
+  --rv-x: 0px;
+  --rv-y: 28px;
+  --rv-scale: 1;
+  --rv-delay: 0ms;
   opacity: 0;
-  transform: translateY(22px);
+  translate: var(--rv-x) var(--rv-y);
+  scale: var(--rv-scale);
   transition:
-    opacity 0.55s ease,
-    transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
-  will-change: opacity, transform;
+    opacity 0.6s ease var(--rv-delay),
+    translate 0.8s var(--ease-brutal) var(--rv-delay),
+    scale 0.7s var(--ease-brutal) var(--rv-delay);
 }
 .reveal.is-in {
   opacity: 1;
-  transform: none;
+  translate: 0 0;
+  scale: 1;
 }
 
-/* ==========================================================================
-   MARQUEE — pita teks berjalan antar section
-   ========================================================================== */
+/* varian arah — dipasang lewat prop `variant` / atribut data-reveal */
+.reveal[data-reveal='left'] { --rv-x: -44px; --rv-y: 0px; }
+.reveal[data-reveal='right'] { --rv-x: 44px; --rv-y: 0px; }
+.reveal[data-reveal='down'] { --rv-y: -28px; }
+.reveal[data-reveal='scale'] { --rv-y: 12px; --rv-scale: 0.94; }
+.reveal[data-reveal='none'] { --rv-y: 0px; }
+.reveal[data-reveal='blur'] {
+  --rv-y: 14px;
+  filter: blur(12px);
+  transition:
+    opacity 0.6s ease var(--rv-delay),
+    translate 0.8s var(--ease-brutal) var(--rv-delay),
+    scale 0.7s var(--ease-brutal) var(--rv-delay),
+    filter 0.7s ease var(--rv-delay);
+}
+.reveal.is-in[data-reveal='blur'] { filter: blur(0px); }
+
+/* ---------- 2 · MASK LINE — judul tersingkap dari bawah ---------- */
+.mask-line {
+  display: block;
+  overflow: hidden;
+  /* ruang ekstra supaya descender tidak terpotong saat baris turun */
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.mask-line > span {
+  display: block;
+  translate: 0 112%;
+  transition: translate 0.9s var(--ease-brutal) var(--line-delay, 0ms);
+}
+.reveal.is-in .mask-line > span { translate: 0 0; }
+
+/* ---------- 3 · ANIMASI TUKAR SLIDE (carousel proyek & skill) ---------- */
+@keyframes swap-in-next {
+  from { opacity: 0; translate: 28px 0; }
+  to   { opacity: 1; translate: 0 0; }
+}
+@keyframes swap-in-prev {
+  from { opacity: 0; translate: -28px 0; }
+  to   { opacity: 1; translate: 0 0; }
+}
+.swap-next { animation: swap-in-next 0.45s var(--ease-brutal) both; }
+.swap-prev { animation: swap-in-prev 0.45s var(--ease-brutal) both; }
+
+@keyframes gallery-in {
+  from { opacity: 0; scale: 1.04; }
+  to   { opacity: 1; scale: 1; }
+}
+.gallery-img { animation: gallery-in 0.5s var(--ease-brutal) both; }
+
+/* ---------- 4 · SEGMEN LEVEL SKILL — tumbuh saat kartu tampil ---------- */
+@keyframes seg-in {
+  from { scale: 0 1; opacity: 0.25; }
+  to   { scale: 1 1; opacity: 1; }
+}
+.level-seg { transform-origin: left center; }
+.reveal.is-in .level-seg,
+.swap-next .level-seg,
+.swap-prev .level-seg {
+  animation: seg-in 0.42s var(--ease-brutal) both;
+  animation-delay: calc(var(--seg, 0) * 45ms + 110ms);
+}
+
+/* ---------- 5 · STEMPEL & NAPAS (aksen kecil) ---------- */
+@keyframes stamp-in {
+  from { opacity: 0; scale: 1.5; rotate: -5deg; }
+  to   { opacity: 1; scale: 1; rotate: 0deg; }
+}
+/* stempel hanya "dicap" saat kartu induknya tampil */
+.reveal.is-in .stamp,
+.swap-next .stamp,
+.swap-prev .stamp { animation: stamp-in 0.55s var(--ease-snap) both; }
+
+@keyframes float-soft {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -6px; }
+}
+.float-soft { animation: float-soft 6.5s ease-in-out infinite; }
+
+@keyframes chip-pop {
+  0%   { translate: 0 2px; }
+  60%  { translate: 0 -1px; }
+  100% { translate: 0 0; }
+}
+.nav-chip[aria-current='true'] { animation: chip-pop 0.35s var(--ease-brutal); }
+
+/* ---------- 6 · HOVER: tilt 3D + sorot kursor ---------- */
+[data-tilt] {
+  transform-style: preserve-3d;
+  transition: transform 0.45s var(--ease-brutal);
+  will-change: transform;
+}
+[data-tilt].is-tilting { transition: transform 0.08s linear; }
+
+/* Sorot lembut mengikuti kursor — ::before agar berada DI BELAKANG teks */
+[data-spotlight] { isolation: isolate; }
+[data-spotlight]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--color-acid) 55%, transparent),
+    transparent 70%
+  );
+  transition: opacity 0.35s ease;
+}
+[data-spotlight]:hover::before { opacity: 0.5; }
+
+/* ---------- 7 · GERAK TERIKAT SCROLL (progressive enhancement) ---------- */
+@keyframes rule-grow {
+  from { scale: 0 1; }
+  to   { scale: 1 1; }
+}
+@keyframes parallax-drift {
+  from { translate: 0 5%; }
+  to   { translate: 0 -5%; }
+}
+@keyframes parallax-drift-slow {
+  from { translate: 0 10%; }
+  to   { translate: 0 -10%; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    [data-scroll-rule] {
+      transform-origin: left center;
+      animation: rule-grow linear both;
+      animation-timeline: view();
+      /* selesai tepat saat elemen masuk penuh — tidak menyisakan garis separuh */
+      animation-range: entry 20% entry 100%;
+    }
+    [data-parallax] {
+      animation: parallax-drift linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+    [data-parallax='slow'] { animation-name: parallax-drift-slow; }
+  }
+}
+
+/* ---------- 8 · MARQUEE — pita teks berjalan antar section ---------- */
 @keyframes marquee-x {
   from { transform: translate3d(0, 0, 0); }
   to   { transform: translate3d(-50%, 0, 0); }
@@ -241,9 +407,10 @@ h1, h2, h3 {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee-x 26s linear infinite;
+  animation: marquee-x var(--marquee-duration, 28s) linear infinite;
 }
-.marquee-track:hover { animation-play-state: paused; }
+.marquee-track[data-direction='reverse'] { animation-direction: reverse; }
+.marquee-band:hover .marquee-track { animation-play-state: paused; }
 
 /* Kedip untuk badge status "available" */
 @keyframes blink-dot {
@@ -252,18 +419,39 @@ h1, h2, h3 {
 }
 .blink { animation: blink-dot 1.6s steps(1, end) infinite; }
 
+/* ---------- 9 · Nama besar footer: isi tinta saat disentuh ---------- */
+.name-outline { transition: color 0.5s ease, -webkit-text-stroke-color 0.5s ease; }
+.name-outline:hover { color: var(--color-ink); }
+
 /* ==========================================================================
-   AKSESIBILITAS — hormati prefers-reduced-motion
+   AKSESIBILITAS — hormati prefers-reduced-motion.
+   Semua gerak dimatikan dan konten langsung tampil (tidak ada yang tersembunyi).
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal {
-    opacity: 1 !important;
-    transform: none !important;
+
+  .reveal,
+  .mask-line > span,
+  .swap-next,
+  .swap-prev,
+  .gallery-img,
+  .stamp,
+  .float-soft,
+  .level-seg,
+  .marquee-track,
+  .blink,
+  .nav-chip,
+  [data-scroll-rule],
+  [data-parallax] {
+    animation: none !important;
     transition: none !important;
+    opacity: 1 !important;
+    translate: none !important;
+    scale: none !important;
+    rotate: none !important;
+    filter: none !important;
   }
-  .marquee-track { animation: none; }
-  .blink { animation: none; }
+
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;

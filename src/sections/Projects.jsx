@@ -39,6 +39,7 @@ export default function Projects() {
   const [publishedProjects, setPublishedProjects] = useState([])
   const [status, setStatus] = useState(hasProjectsApi ? 'loading' : 'local')
   const [activeProjectIndex, setActiveProjectIndex] = useState(0)
+  const [slideDirection, setSlideDirection] = useState(1)
   const touchStart = useRef(null)
 
   useEffect(() => {
@@ -72,7 +73,10 @@ export default function Projects() {
       : prepareProjects(publishedProjects),
     [publishedProjects, status],
   )
-  useEffect(() => setActiveProjectIndex(0), [visibleProjects])
+  useEffect(() => {
+    setActiveProjectIndex(0)
+    setSlideDirection(1)
+  }, [visibleProjects])
   useReveal([publishedProjects, status])
 
   const projectCount = visibleProjects.length
@@ -81,7 +85,12 @@ export default function Projects() {
   const p = activeProject
   const moveProject = (direction) => {
     if (projectCount < 2) return
+    setSlideDirection(direction)
     setActiveProjectIndex((index) => (index + direction + projectCount) % projectCount)
+  }
+  const goToProject = (index) => {
+    setSlideDirection(index >= currentIndex ? 1 : -1)
+    setActiveProjectIndex(index)
   }
   const onProjectKeyDown = (event) => {
     if (event.target !== event.currentTarget || projectCount < 2) return
@@ -139,7 +148,7 @@ export default function Projects() {
           <div className="flex items-center gap-2">
             <button type="button" onClick={() => moveProject(-1)} aria-label="Proyek sebelumnya" className="border-2 border-ink bg-card px-3 py-1.5 font-mono text-sm font-bold hover:bg-acid">←</button>
             <div className="flex flex-wrap justify-center gap-1.5" aria-label="Pilih proyek">
-              {visibleProjects.map((project, index) => <button key={project.id} type="button" onClick={() => setActiveProjectIndex(index)} aria-label={`Lihat proyek ${index + 1}: ${project.name}`} aria-current={currentIndex === index ? 'true' : undefined} className={`h-3 w-3 border-2 border-ink ${currentIndex === index ? 'bg-flag' : 'bg-card hover:bg-acid'}`} />)}
+              {visibleProjects.map((project, index) => <button key={project.id} type="button" onClick={() => goToProject(index)} aria-label={`Lihat proyek ${index + 1}: ${project.name}`} aria-current={currentIndex === index ? 'true' : undefined} className={`h-3 w-3 border-2 border-ink ${currentIndex === index ? 'bg-flag' : 'bg-card hover:bg-acid'}`} />)}
             </div>
             <button type="button" onClick={() => moveProject(1)} aria-label="Proyek berikutnya" className="border-2 border-ink bg-card px-3 py-1.5 font-mono text-sm font-bold hover:bg-acid">→</button>
           </div>
@@ -147,6 +156,7 @@ export default function Projects() {
 
         {/* ================= SATU PROYEK PER SLIDE ================= */}
         {activeProject ? <div role="region" aria-roledescription="carousel" aria-label="Proyek portofolio" tabIndex={projectCount > 1 ? 0 : undefined} onKeyDown={onProjectKeyDown} onTouchStart={onProjectTouchStart} onTouchEnd={onProjectTouchEnd} className={`min-w-0 outline-none focus-visible:ring-4 focus-visible:ring-azure ${p.featured ? 'sm:col-span-2 lg:col-span-3' : ''}`}>
+          <div key={p.id} className={slideDirection > 0 ? 'swap-next' : 'swap-prev'}>
           {p.featured ? (
           <BentoCell
             key={p.id}
@@ -279,6 +289,7 @@ export default function Projects() {
             </div> : null}
           </BentoCell>
           )}
+          </div>
         </div> : null}
 
         {/* ================= KARTU ARSIP ================= */}

@@ -39,6 +39,19 @@
         } catch (e) {}
       })()
     </script>
+
+    <!-- Tanpa JavaScript, semua elemen animasi harus tetap terlihat -->
+    <noscript>
+      <style>
+        .reveal,
+        .mask-line > span {
+          opacity: 1 !important;
+          translate: none !important;
+          scale: none !important;
+          filter: none !important;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
     <div id="root"></div>

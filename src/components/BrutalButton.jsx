@@ -30,7 +30,7 @@ export default function BrutalButton({
 }) {
   const Tag = as
   const classes = [
-    'inline-flex items-center justify-center border-[3px] border-ink',
+    'group inline-flex items-center justify-center border-[3px] border-ink',
     'font-mono font-bold tracking-[0.14em] uppercase whitespace-nowrap',
     'shadow-[4px_4px_0_0_var(--color-ink)]',
     'transition-all duration-150',
@@ -49,7 +49,10 @@ export default function BrutalButton({
     >
       {children}
       {icon ? (
-        <span aria-hidden="true" className="text-[1.1em] leading-none">
+        <span
+          aria-hidden="true"
+          className="text-[1.1em] leading-none transition-transform duration-200 group-hover:translate-x-[2px]"
+        >
           {icon}
         </span>
       ) : null}

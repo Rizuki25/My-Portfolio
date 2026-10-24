@@ -15,8 +15,9 @@ function LevelBar({ level = 3, invert = false }) {
       {[1, 2, 3, 4, 5].map((n) => (
         <span
           key={n}
+          style={{ '--seg': n - 1 }}
           className={[
-            'h-3 w-[10px] border-2 transition-colors duration-200',
+            'level-seg h-3 w-[10px] border-2 transition-colors duration-200',
             invert ? 'border-paper/40 group-hover:border-ink' : 'border-ink',
             n <= level
               ? invert
@@ -93,6 +94,7 @@ export default function Skills() {
   const { skillGroups, toolbox, siteMeta } = useContent()
   const [visibleCount, setVisibleCount] = useState(groupsPerPage)
   const [page, setPage] = useState(0)
+  const [slideDirection, setSlideDirection] = useState(1)
   const touchStart = useRef(null)
 
   useEffect(() => {
@@ -108,7 +110,12 @@ export default function Skills() {
   const visibleGroups = skillGroups.slice(start, start + visibleCount)
   const move = (direction) => {
     if (pageCount < 2) return
+    setSlideDirection(direction)
     setPage((current) => (current + direction + pageCount) % pageCount)
+  }
+  const goToPage = (index) => {
+    setSlideDirection(index >= currentPage ? 1 : -1)
+    setPage(index)
   }
   const onKeyDown = (event) => {
     if (event.target !== event.currentTarget || pageCount < 2) return
@@ -136,17 +143,19 @@ export default function Skills() {
       />
 
       <div role="region" aria-roledescription={pageCount > 1 ? 'carousel' : undefined} aria-label="Kelompok keahlian" tabIndex={pageCount > 1 ? 0 : undefined} onKeyDown={onKeyDown} onTouchStart={(event) => { touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY } }} onTouchEnd={onTouchEnd} className="outline-none focus-visible:ring-4 focus-visible:ring-azure">
+        <div key={currentPage} className={slideDirection > 0 ? 'swap-next' : 'swap-prev'}>
         <BentoGrid>
           {visibleGroups.map((group, offset) => <SkillGroupCard key={`${start + offset}-${group.title}`} group={group} index={start + offset} />)}
           {skillGroups.length === 0 ? <BentoCell span="sm:col-span-2 lg:col-span-3" tone="card" pad="md" reveal={false}><p className="text-sm text-ink-soft">Belum ada kelompok keahlian.</p></BentoCell> : null}
         </BentoGrid>
+        </div>
 
         {pageCount > 1 ? <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-[3px] border-ink bg-paper-2 p-3">
           <button type="button" onClick={() => move(-1)} aria-label="Kelompok skill sebelumnya" className="border-2 border-ink bg-card px-3 py-1.5 font-mono text-sm font-bold hover:bg-acid">←</button>
           <span className="font-mono text-xs font-bold uppercase" aria-live="polite" aria-atomic="true">Kelompok {start + 1}–{Math.min(start + visibleCount, skillGroups.length)} / {skillGroups.length}</span>
           <div className="flex items-center gap-2">
             <div className="flex flex-wrap justify-center gap-1.5" aria-label="Pilih halaman kelompok skill">
-              {Array.from({ length: pageCount }, (_, index) => <button key={index} type="button" onClick={() => setPage(index)} aria-label={`Lihat kelompok skill halaman ${index + 1}`} aria-current={currentPage === index ? 'true' : undefined} className={`h-3 w-3 border-2 border-ink ${currentPage === index ? 'bg-flag' : 'bg-card hover:bg-acid'}`} />)}
+              {Array.from({ length: pageCount }, (_, index) => <button key={index} type="button" onClick={() => goToPage(index)} aria-label={`Lihat kelompok skill halaman ${index + 1}`} aria-current={currentPage === index ? 'true' : undefined} className={`h-3 w-3 border-2 border-ink ${currentPage === index ? 'bg-flag' : 'bg-card hover:bg-acid'}`} />)}
             </div>
             <button type="button" onClick={() => move(1)} aria-label="Kelompok skill berikutnya" className="border-2 border-ink bg-card px-3 py-1.5 font-mono text-sm font-bold hover:bg-acid">→</button>
           </div>

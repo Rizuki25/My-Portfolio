@@ -1,44 +1,82 @@
 import { useEffect } from 'react'
 
+const REDUCED = '(prefers-reduced-motion: reduce)'
+
 /**
  * Scroll reveal berbasis IntersectionObserver.
  *
- * Elemen apa pun dengan class `.reveal` akan diberi class `.is-in` begitu
- * masuk viewport, lalu berhenti diobservasi (animasi sekali jalan).
+ * Elemen dengan class `.reveal` mendapat class `.is-in` begitu masuk viewport,
+ * lalu berhenti diobservasi. Atribut pendukung:
  *
- * Urutan muncul bisa diatur lewat atribut `data-delay="120"` (ms) pada elemen.
+ * - `data-delay="120"`  → jeda animasi (ms), jadi CSS variable `--rv-delay`
+ * - `data-reveal="left|right|down|scale|blur|none"` → varian arah (di CSS)
+ *
+ * MutationObserver dipasang supaya konten yang datang belakangan (mis. proyek
+ * dari Supabase yang dimuat async) ikut ter-reveal tanpa memuat ulang halaman.
  */
 export function useReveal(deps = []) {
   useEffect(() => {
-    const nodes = Array.from(document.querySelectorAll('.reveal:not(.is-in)'))
-    if (nodes.length === 0) return
+    if (typeof window === 'undefined') return undefined
 
-    // Hormati pengguna yang mematikan animasi
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduced = window.matchMedia(REDUCED).matches
+    const showAll = () =>
+      document.querySelectorAll('.reveal').forEach((node) => node.classList.add('is-in'))
+
+    // Tanpa observer / pengguna mematikan animasi: tampilkan semuanya langsung
     if (reduced || !('IntersectionObserver' in window)) {
-      nodes.forEach((n) => n.classList.add('is-in'))
-      return
+      showAll()
+      return undefined
     }
 
-    nodes.forEach((node) => {
-      const delay = node.dataset.delay
-      if (delay) node.style.transitionDelay = `${delay}ms`
-    })
+    const observed = new WeakSet()
+    let queued = false
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-in')
-            observer.unobserve(entry.target)
-          }
+          if (!entry.isIntersecting) return
+          entry.target.classList.add('is-in')
+          observer.unobserve(entry.target)
         })
       },
       { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
     )
 
-    nodes.forEach((node) => observer.observe(node))
-    return () => observer.disconnect()
+    const bind = () => {
+      document.querySelectorAll('.reveal:not(.is-in)').forEach((node) => {
+        if (observed.has(node)) return
+        observed.add(node)
+
+        const delay = Number(node.dataset.delay ?? 0)
+        if (delay > 0) node.style.setProperty('--rv-delay', `${delay}ms`)
+
+        // Elemen yang sudah lewat di atas viewport (deep link / restore scroll)
+        // langsung dianggap tampil supaya tidak "hilang" saat pengguna scroll naik.
+        if (node.getBoundingClientRect().bottom < -40) {
+          node.classList.add('is-in')
+          return
+        }
+
+        observer.observe(node)
+      })
+    }
+
+    bind()
+
+    const mutation = new MutationObserver(() => {
+      if (queued) return
+      queued = true
+      window.requestAnimationFrame(() => {
+        queued = false
+        bind()
+      })
+    })
+    mutation.observe(document.body, { childList: true, subtree: true })
+
+    return () => {
+      observer.disconnect()
+      mutation.disconnect()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
 }

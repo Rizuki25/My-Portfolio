@@ -1,5 +1,7 @@
 import NavBar from './components/NavBar'
 import Footer from './components/Footer'
+import MarqueeBand from './components/MarqueeBand'
+import PageChrome from './components/PageChrome'
 
 import Home from './sections/Home'
 import About from './sections/About'
@@ -9,8 +11,10 @@ import Skills from './sections/Skills'
 import Education from './sections/Education'
 import Contact from './sections/Contact'
 
+import { useContent } from './contexts/ContentContext'
 import { useTheme } from './hooks/useTheme'
 import { useReveal } from './hooks/useReveal'
+import { usePointerFX } from './hooks/usePointerFX'
 
 /**
  * ==========================================================================
@@ -22,9 +26,22 @@ import { useReveal } from './hooks/useReveal'
  */
 export default function App() {
   const { theme, toggle } = useTheme()
+  const { profile } = useContent()
 
-  // Pasang IntersectionObserver ke semua elemen .reveal setelah render pertama
+  // Pasang IntersectionObserver ke semua elemen .reveal (termasuk konten async)
   useReveal()
+
+  // Sorot kursor + tilt 3D — otomatis mati di layar sentuh
+  usePointerFX()
+
+  const bandItems = [
+    profile.role,
+    profile.roleAlt,
+    profile.location,
+    profile.availability,
+    `${profile.yearsExp}+ tahun pengalaman`,
+    profile.timezone,
+  ]
 
   return (
     <div className="min-h-screen bg-paper font-sans text-ink">
@@ -40,9 +57,16 @@ export default function App() {
 
       <main
         id="main"
-        className="mx-auto w-full max-w-md px-3 pb-4 sm:max-w-3xl sm:px-5 lg:max-w-6xl"
+        className="mx-auto w-full max-w-md overflow-x-clip px-3 pb-4 sm:max-w-3xl sm:px-5 lg:max-w-6xl"
       >
         <Home />
+
+        <MarqueeBand
+          items={bandItems}
+          duration={36}
+          className="my-7 -mx-3 sm:my-9 sm:-mx-5"
+        />
+
         <About />
         <Experience />
         <Projects />
@@ -52,6 +76,7 @@ export default function App() {
       </main>
 
       <Footer />
+      <PageChrome />
     </div>
   )
 }

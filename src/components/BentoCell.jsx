@@ -32,6 +32,7 @@ export default function BentoCell({
   pad = 'md',
   hover = false,
   reveal = true,
+  variant,
   delay,
   className = '',
   children,
@@ -53,6 +54,7 @@ export default function BentoCell({
     {
       className: classes,
       ...(delay != null ? { 'data-delay': delay } : {}),
+      ...(variant ? { 'data-reveal': variant } : {}),
       ...rest,
     },
     children,

@@ -29,7 +29,7 @@ export default function ProjectGallery({ images = [], title, wide = false }) {
   return (
     <div role="region" aria-roledescription="carousel" aria-label={`Foto proyek ${title}`} tabIndex={0} onKeyDown={onKeyDown} onTouchStart={(event) => { touchStartX.current = event.touches[0].clientX }} onTouchEnd={onTouchEnd} className="min-w-0 outline-none focus-visible:ring-4 focus-visible:ring-azure">
       <div className={`relative flex items-center justify-center overflow-hidden bg-ink/90 ${wide ? 'aspect-[16/9] max-h-[32rem]' : 'aspect-[4/3]'}`}>
-        <img key={image.url} src={image.url} alt={image.alt} loading="lazy" decoding="async" className="h-full w-full object-contain" />
+        <img key={image.url} src={image.url} alt={image.alt} loading="lazy" decoding="async" className="gallery-img h-full w-full object-contain" />
         {count > 1 ? <span aria-live="polite" className="absolute top-3 right-3 border-2 border-paper bg-ink px-2 py-1 font-mono text-[0.625rem] font-bold text-paper">{current + 1} / {count}</span> : null}
       </div>
       {count > 1 ? (

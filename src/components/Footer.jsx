@@ -11,10 +11,11 @@ export default function Footer() {
   return (
     <footer className="mt-12 border-t-[3px] border-ink bg-paper-2 sm:mt-16">
       <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-5 sm:py-14">
-        {/* nama besar outline */}
+        {/* nama besar outline — bergerak halus mengikuti scroll */}
         <p
           aria-hidden="true"
-          className="text-outline select-none text-center font-display text-[3.25rem] leading-[0.85] break-words sm:text-7xl lg:text-8xl"
+          data-parallax="slow"
+          className="name-outline text-outline select-none text-center font-display text-[3.25rem] leading-[0.85] break-words sm:text-7xl lg:text-8xl"
         >
           {profile.firstName.toUpperCase()}
           <br />

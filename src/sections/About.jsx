@@ -21,7 +21,7 @@ export default function About() {
 
       <BentoGrid>
         {/* ---------- narasi utama ---------- */}
-        <BentoCell span="sm:col-span-2 lg:col-span-2" tone="card" pad="lg" hover>
+        <BentoCell span="sm:col-span-2 lg:col-span-2" tone="card" pad="lg" hover data-spotlight>
           <h3 className="font-display text-2xl leading-[0.95] uppercase sm:text-3xl">
             {about.heading}
           </h3>
@@ -45,7 +45,7 @@ export default function About() {
         </BentoCell>
 
         {/* ---------- fakta singkat ---------- */}
-        <BentoCell tone="ink" pad="none" hover className="self-start">
+        <BentoCell tone="ink" pad="none" hover variant="right" delay={80} className="self-start">
           <div className="border-b-[3px] border-paper/25 px-4 py-2">
             <span className="label-mono text-acid-text">Fakta Singkat</span>
           </div>
@@ -68,6 +68,7 @@ export default function About() {
             tone={i % 3 === 1 ? 'paper2' : 'card'}
             pad="md"
             hover
+            variant="scale"
             delay={i * 70}
           >
             <div className="flex items-center justify-between">

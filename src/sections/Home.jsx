@@ -1,12 +1,16 @@
 import { useContent } from '../contexts/ContentContext'
 import BentoCell from '../components/BentoCell'
 import BrutalButton from '../components/BrutalButton'
+import CountUp from '../components/CountUp'
 import { BentoGrid, SectionShell } from '../components/Primitives'
 
 /**
  * ==========================================================================
  *  01 / HOME — pembuka bergaya sampul majalah teknis
  * ==========================================================================
+ *  Motion: judul tersingkap baris demi baris (mask-line), kartu identitas
+ *  menyorot mengikuti kursor, potret memiringkan diri (tilt 3D), dan angka
+ *  rekap berjalan dari nol saat section masuk layar.
  */
 export default function Home() {
   const { profile, stats, siteMeta } = useContent()
@@ -20,6 +24,7 @@ export default function Home() {
           tone="card"
           pad="lg"
           hover
+          data-spotlight
           className="bg-blueprint"
         >
           <div className="flex flex-wrap items-center gap-2 border-b-2 border-ink pb-2">
@@ -31,13 +36,16 @@ export default function Home() {
           </div>
 
           <h1 className="mt-4 font-display text-[2.6rem] leading-[0.86] break-words sm:text-6xl lg:text-7xl">
-            {profile.firstName}
-            <br />
-            <span className="text-outline">{profile.lastName}</span>
+            <span className="mask-line">
+              <span style={{ '--line-delay': '60ms' }}>{profile.firstName}</span>
+            </span>
+            <span className="mask-line text-outline">
+              <span style={{ '--line-delay': '170ms' }}>{profile.lastName}</span>
+            </span>
           </h1>
 
           <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[0.6875rem] font-bold tracking-[0.14em] uppercase sm:text-xs">
-            <span className="bg-acid border-2 border-ink px-2 py-0.5">
+            <span className="stamp bg-acid border-2 border-ink px-2 py-0.5">
               {profile.role}
             </span>
             <span className="text-ink-soft">&</span>
@@ -58,11 +66,11 @@ export default function Home() {
           </div>
         </BentoCell>
 
-        {/* ---------- monogram / potret ---------- */}
+        {/* ---------- monogram / potret (memiringkan diri mengikuti kursor) ---------- */}
         <BentoCell
           tone="ink"
           pad="none"
-          hover
+          data-tilt="7"
           className="flex min-h-[13rem] flex-col justify-between overflow-hidden bg-hatch sm:min-h-full"
         >
           <div className="flex items-start justify-between p-3">
@@ -75,14 +83,14 @@ export default function Home() {
               <img
                 src={profile.avatarUrl}
                 alt={`Potret ${profile.name}`}
-                className="h-40 w-40 border-[3px] border-paper object-cover sm:h-48 sm:w-48"
+                className="float-soft h-40 w-40 border-[3px] border-paper object-cover sm:h-48 sm:w-48"
                 loading="lazy"
                 decoding="async"
               />
             ) : (
               <span
                 aria-hidden="true"
-                className="font-display text-[5.5rem] leading-none text-paper sm:text-7xl"
+                className="float-soft font-display text-[5.5rem] leading-none text-paper sm:text-7xl"
               >
                 {profile.monogram}
               </span>
@@ -97,7 +105,7 @@ export default function Home() {
         </BentoCell>
 
         {/* ---------- ketersediaan ---------- */}
-        <BentoCell tone="flag" span="sm:col-span-2" pad="md" hover>
+        <BentoCell tone="flag" span="sm:col-span-2" pad="md" hover delay={60}>
           <div className="flex items-start gap-3">
             <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center border-[3px] border-ink bg-card">
               <span className="blink h-1.5 w-1.5 bg-flag-text" />
@@ -115,7 +123,7 @@ export default function Home() {
         </BentoCell>
 
         {/* ---------- lokasi & zona waktu ---------- */}
-        <BentoCell tone="paper2" pad="md" hover>
+        <BentoCell tone="paper2" pad="md" hover delay={120}>
           <span className="label-mono text-flag-text">Basis</span>
           <p className="mt-2 font-display text-base leading-tight uppercase">
             {profile.location}
@@ -155,8 +163,8 @@ export default function Home() {
                   .join(' ')}
               >
                 <dt className="label-mono text-paper/70 group-hover:text-ink/85">{s.label}</dt>
-                <dd className="mt-1.5 font-display text-4xl leading-none sm:text-5xl">
-                  {s.value}
+                <dd className="mt-1.5 font-display text-4xl leading-none tabular-nums sm:text-5xl">
+                  <CountUp value={s.value} />
                 </dd>
                 <dd className="mt-1.5 font-mono text-[0.625rem] text-paper/70 group-hover:text-ink/85">
                   {s.sub}

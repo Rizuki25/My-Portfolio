@@ -32,6 +32,7 @@ export default function Experience() {
             tone={job.current ? 'acid' : i % 2 === 0 ? 'card' : 'paper2'}
             pad="none"
             hover
+            variant="scale"
             delay={i * 60}
           >
             {/* ---------- baris judul entri ---------- */}
