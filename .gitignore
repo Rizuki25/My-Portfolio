@@ -9,6 +9,9 @@ dist-ssr
 build
 *.local
 
+# Motion render intermediates
+motion/frames/
+
 # Logs
 logs
 *.log
