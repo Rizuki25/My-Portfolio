@@ -36,7 +36,7 @@ export default function MarqueeBand({
                 className="flex items-center gap-3 px-3 font-mono text-[0.625rem] font-bold tracking-[0.18em] whitespace-nowrap uppercase"
               >
                 <span className="text-acid-text">{item}</span>
-                <span className="h-1.5 w-1.5 border border-paper/50" />
+                <span className="marquee-gem h-1.5 w-1.5 border border-paper/50" />
               </span>
             ))}
           </div>

@@ -98,8 +98,9 @@ export default function Contact() {
               <button
                 type="button"
                 onClick={copyEmail}
-                aria-label="Salin alamat email"
-                className="shrink-0 border-2 border-paper/35 px-2 py-1 font-mono text-[0.5625rem] font-bold tracking-wider text-paper uppercase transition-colors duration-150 hover:border-acid hover:bg-acid hover:text-ink"
+                aria-label={copied ? 'Alamat email tersalin' : 'Salin alamat email'}
+                aria-live="polite"
+                className={`shrink-0 border-2 border-paper/35 px-2 py-1 font-mono text-[0.5625rem] font-bold tracking-wider text-paper uppercase transition-colors duration-150 hover:border-acid hover:bg-acid hover:text-ink ${copied ? 'copy-confirmed' : ''}`}
               >
                 {copied ? 'Tersalin' : 'Salin'}
               </button>

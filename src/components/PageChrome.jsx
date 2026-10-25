@@ -11,7 +11,7 @@ import { useScrollProgress } from '../hooks/useScrollProgress'
  *
  * Keduanya murni tambahan — navbar utama tetap menjadi navigasi utama.
  */
-export default function PageChrome() {
+export default function PageChrome({ motionEnabled, reducedMotion, onToggleMotion }) {
   const ids = useMemo(() => sections.map((section) => section.id), [])
   const active = useActiveSection(ids)
   const progress = useScrollProgress()
@@ -61,23 +61,43 @@ export default function PageChrome() {
         })}
       </nav>
 
-      {/* ---------- kembali ke atas ---------- */}
+      {/* ---------- kendali motion: pengguna selalu punya tombol jeda ---------- */}
+      <button
+        type="button"
+        onClick={onToggleMotion}
+        disabled={reducedMotion}
+        aria-label={reducedMotion ? 'Animasi mengikuti preferensi reduced-motion sistem' : motionEnabled ? 'Jeda animasi dekoratif' : 'Putar animasi dekoratif'}
+        aria-pressed={motionEnabled}
+        title={reducedMotion ? 'Animasi dimatikan oleh preferensi sistem' : motionEnabled ? 'Jeda animasi' : 'Putar animasi'}
+        data-magnetic="0.12"
+        className="motion-control fixed bottom-3 left-3 z-40 flex items-center gap-2 border-[3px] border-ink bg-card px-2.5 py-2 font-mono text-[0.5625rem] font-bold tracking-[0.12em] uppercase shadow-[4px_4px_0_0_var(--color-ink)] sm:bottom-5 sm:left-5"
+      >
+        <span className="motion-control__icon" aria-hidden="true">{motionEnabled ? '❚❚' : '▶'}</span>
+        <span>{motionEnabled ? 'Motion on' : 'Motion off'}</span>
+      </button>
+
+      {/* ---------- kembali ke atas + progres melingkar ---------- */}
       <button
         type="button"
         onClick={backToTop}
-        aria-label="Kembali ke atas halaman"
+        aria-label={`Kembali ke atas halaman. Progres baca ${Math.round(progress * 100)} persen`}
+        title="Kembali ke atas"
         tabIndex={canGoTop ? 0 : -1}
+        data-magnetic="0.12"
         className={[
-          'fixed right-3 bottom-3 z-40 flex h-10 w-10 items-center justify-center border-[3px] border-ink bg-acid text-base font-bold text-ink',
+          'back-to-top fixed right-3 bottom-3 z-40 flex h-11 w-11 items-center justify-center border-[3px] border-ink bg-acid text-base font-bold text-ink',
           'shadow-[4px_4px_0_0_var(--color-ink)] transition-all duration-300 sm:right-5 sm:bottom-5',
-          'hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_0_var(--color-ink)]',
-          'active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_0_var(--color-ink)]',
+          'hover:shadow-[6px_6px_0_0_var(--color-ink)]',
           canGoTop
             ? 'pointer-events-auto opacity-100'
             : 'pointer-events-none translate-y-3 opacity-0',
         ].join(' ')}
       >
-        <span aria-hidden="true">↑</span>
+        <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 44 44" aria-hidden="true">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="var(--color-ink)" strokeOpacity="0.18" strokeWidth="2" />
+          <circle cx="22" cy="22" r="18" fill="none" stroke="var(--color-ink)" strokeWidth="2" strokeDasharray="113.1" strokeDashoffset={(1 - progress) * 113.1} />
+        </svg>
+        <span className="relative" aria-hidden="true">↑</span>
       </button>
     </>
   )

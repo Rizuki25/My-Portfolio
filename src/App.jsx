@@ -2,6 +2,8 @@ import NavBar from './components/NavBar'
 import Footer from './components/Footer'
 import MarqueeBand from './components/MarqueeBand'
 import PageChrome from './components/PageChrome'
+import AmbientScene from './components/AmbientScene'
+import CursorFollower from './components/CursorFollower'
 
 import Home from './sections/Home'
 import About from './sections/About'
@@ -15,6 +17,8 @@ import { useContent } from './contexts/ContentContext'
 import { useTheme } from './hooks/useTheme'
 import { useReveal } from './hooks/useReveal'
 import { usePointerFX } from './hooks/usePointerFX'
+import { useMotionSettings } from './hooks/useMotionSettings'
+import { useScrollScenes } from './hooks/useScrollScenes'
 
 /**
  * ==========================================================================
@@ -26,13 +30,15 @@ import { usePointerFX } from './hooks/usePointerFX'
  */
 export default function App() {
   const { theme, toggle } = useTheme()
-  const { profile } = useContent()
+  const { profile, toolbox } = useContent()
+  const { enabled: motionEnabled, reduced: reducedMotion, toggle: toggleMotion } = useMotionSettings()
 
   // Pasang IntersectionObserver ke semua elemen .reveal (termasuk konten async)
   useReveal()
 
-  // Sorot kursor + tilt 3D — otomatis mati di layar sentuh
-  usePointerFX()
+  // Sorot kursor, tilt 3D, magnetic button, dan parallax—satu preferensi motion.
+  usePointerFX(motionEnabled)
+  useScrollScenes(motionEnabled)
 
   const bandItems = [
     profile.role,
@@ -44,7 +50,10 @@ export default function App() {
   ]
 
   return (
-    <div className="min-h-screen bg-paper font-sans text-ink">
+    <div className="relative isolate min-h-screen overflow-x-clip bg-paper font-sans text-ink">
+      <AmbientScene />
+      <CursorFollower enabled={motionEnabled} />
+
       {/* tautan lompat untuk pengguna keyboard / pembaca layar */}
       <a
         href="#home"
@@ -57,7 +66,7 @@ export default function App() {
 
       <main
         id="main"
-        className="mx-auto w-full max-w-md overflow-x-clip px-3 pb-4 sm:max-w-3xl sm:px-5 lg:max-w-6xl"
+        className="relative z-10 mx-auto w-full max-w-md px-3 pb-4 sm:max-w-3xl sm:px-5 lg:max-w-6xl"
       >
         <Home />
 
@@ -70,13 +79,27 @@ export default function App() {
         <About />
         <Experience />
         <Projects />
+
+        <MarqueeBand
+          items={toolbox}
+          duration={26}
+          reverse
+          className="my-7 -mx-3 sm:my-9 sm:-mx-5"
+        />
+
         <Skills />
         <Education />
         <Contact />
       </main>
 
-      <Footer />
-      <PageChrome />
+      <div className="relative z-10">
+        <Footer />
+      </div>
+      <PageChrome
+        motionEnabled={motionEnabled}
+        reducedMotion={reducedMotion}
+        onToggleMotion={toggleMotion}
+      />
     </div>
   )
 }

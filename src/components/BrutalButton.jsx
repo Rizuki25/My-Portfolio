@@ -45,6 +45,7 @@ export default function BrutalButton({
     <Tag
       href={Tag === 'a' ? href : undefined}
       className={classes}
+      data-magnetic="0.18"
       {...rest}
     >
       {children}

@@ -16,22 +16,22 @@
   --breakpoint-xs: 26rem;
 
   /* permukaan */
-  --color-paper: #f7ede5;      /* krem pucat seperti latar referensi    */
-  --color-paper-2: #b4c471;    /* hijau sage untuk kartu sekunder      */
-  --color-card: #fff7f1;       /* permukaan kartu krem                  */
+  --color-paper: #f5f2ea;      /* warm ivory untuk latar utama          */
+  --color-paper-2: #e3e8dd;    /* pale sage untuk bidang sekunder       */
+  --color-card: #fffdf8;       /* soft white untuk permukaan kartu      */
 
   /* tinta */
-  --color-ink: #292724;        /* border + teks utama, charcoal         */
-  --color-ink-soft: #4b4640;   /* teks sekunder                         */
+  --color-ink: #29352f;        /* border + teks utama, deep forest      */
+  --color-ink-soft: #606b63;   /* teks sekunder, muted gray-green       */
 
   /* aksen */
-  --color-acid: #ffbf2c;       /* kuning keemasan untuk kartu & hover   */
-  --color-acid-deep: #e99116;  /* bayangan / garis aksen                */
-  --color-acid-text: #ffbf2c;  /* teks kuning pada kartu inverse        */
-  --color-flag: #f37b08;       /* oranye untuk badge & kartu khusus     */
-  --color-flag-text: #813000;  /* oranye gelap agar label mudah dibaca  */
-  --color-on-flag: #292724;    /* teks pada bidang oranye               */
-  --color-azure: #813000;      /* fokus keyboard                        */
+  --color-acid: #91a487;       /* muted sage untuk kartu & hover        */
+  --color-acid-deep: #91a487;  /* bayangan / garis aksen sage           */
+  --color-acid-text: #e3e8dd;  /* pale sage pada bidang forest          */
+  --color-flag: #b9785d;       /* soft terracotta untuk badge & kartu   */
+  --color-flag-text: #29352f;  /* forest agar label tetap terbaca       */
+  --color-on-flag: #fffdf8;    /* teks terang pada bidang terracotta    */
+  --color-azure: #606b63;      /* fokus keyboard                        */
 
   /* tipografi */
   --font-display: "Archivo Black", "Arial Black", Impact, sans-serif;
@@ -41,18 +41,18 @@
 
 /* ---------- inversi tema gelap ---------- */
 .dark {
-  --color-paper: #211f1d;
-  --color-paper-2: #394329;
-  --color-card: #2c2a27;
-  --color-ink: #f7ede5;
-  --color-ink-soft: #d3c7b9;
-  --color-acid: #5a4315;
-  --color-acid-deep: #9b6a1a;
-  --color-acid-text: #8b4d00;
-  --color-flag: #ffad55;
-  --color-flag-text: #ffba70;
-  --color-on-flag: #292724;
-  --color-azure: #ffba70;
+  --color-paper: #202924;
+  --color-paper-2: #37453b;
+  --color-card: #2c3731;
+  --color-ink: #f5f2ea;
+  --color-ink-soft: #b8c2b9;
+  --color-acid: #53634a;
+  --color-acid-deep: #738668;
+  --color-acid-text: #465640;
+  --color-flag: #c58d72;
+  --color-flag-text: #d6a58c;
+  --color-on-flag: #202924;
+  --color-azure: #d6a58c;
   color-scheme: dark;
 }
 
@@ -240,26 +240,30 @@ h1, h2, h3 {
   --rv-x: 0px;
   --rv-y: 28px;
   --rv-scale: 1;
+  --rv-rotate: 0deg;
   --rv-delay: 0ms;
   opacity: 0;
   translate: var(--rv-x) var(--rv-y);
   scale: var(--rv-scale);
+  rotate: var(--rv-rotate);
   transition:
-    opacity 0.6s ease var(--rv-delay),
-    translate 0.8s var(--ease-brutal) var(--rv-delay),
-    scale 0.7s var(--ease-brutal) var(--rv-delay);
+    opacity 0.65s ease var(--rv-delay),
+    translate 0.9s var(--ease-brutal) var(--rv-delay),
+    scale 0.85s var(--ease-brutal) var(--rv-delay),
+    rotate 0.9s var(--ease-brutal) var(--rv-delay);
 }
 .reveal.is-in {
   opacity: 1;
   translate: 0 0;
   scale: 1;
+  rotate: 0deg;
 }
 
 /* varian arah — dipasang lewat prop `variant` / atribut data-reveal */
-.reveal[data-reveal='left'] { --rv-x: -44px; --rv-y: 0px; }
-.reveal[data-reveal='right'] { --rv-x: 44px; --rv-y: 0px; }
-.reveal[data-reveal='down'] { --rv-y: -28px; }
-.reveal[data-reveal='scale'] { --rv-y: 12px; --rv-scale: 0.94; }
+.reveal[data-reveal='left'] { --rv-x: -48px; --rv-y: 0px; --rv-rotate: -1.5deg; }
+.reveal[data-reveal='right'] { --rv-x: 48px; --rv-y: 0px; --rv-rotate: 1.5deg; }
+.reveal[data-reveal='down'] { --rv-y: -32px; }
+.reveal[data-reveal='scale'] { --rv-y: 18px; --rv-scale: 0.94; --rv-rotate: -0.75deg; }
 .reveal[data-reveal='none'] { --rv-y: 0px; }
 .reveal[data-reveal='blur'] {
   --rv-y: 14px;
@@ -289,19 +293,19 @@ h1, h2, h3 {
 
 /* ---------- 3 · ANIMASI TUKAR SLIDE (carousel proyek & skill) ---------- */
 @keyframes swap-in-next {
-  from { opacity: 0; translate: 28px 0; }
-  to   { opacity: 1; translate: 0 0; }
+  from { opacity: 0; translate: 48px 0; scale: 0.98; rotate: 0.8deg; }
+  to   { opacity: 1; translate: 0 0; scale: 1; rotate: 0deg; }
 }
 @keyframes swap-in-prev {
-  from { opacity: 0; translate: -28px 0; }
-  to   { opacity: 1; translate: 0 0; }
+  from { opacity: 0; translate: -48px 0; scale: 0.98; rotate: -0.8deg; }
+  to   { opacity: 1; translate: 0 0; scale: 1; rotate: 0deg; }
 }
-.swap-next { animation: swap-in-next 0.45s var(--ease-brutal) both; }
-.swap-prev { animation: swap-in-prev 0.45s var(--ease-brutal) both; }
+.swap-next { animation: swap-in-next 0.6s var(--ease-brutal) both; }
+.swap-prev { animation: swap-in-prev 0.6s var(--ease-brutal) both; }
 
 @keyframes gallery-in {
-  from { opacity: 0; scale: 1.04; }
-  to   { opacity: 1; scale: 1; }
+  from { opacity: 0; scale: 1.06; filter: blur(4px); }
+  to   { opacity: 1; scale: 1; filter: blur(0); }
 }
 .gallery-img { animation: gallery-in 0.5s var(--ease-brutal) both; }
 
@@ -424,6 +428,324 @@ h1, h2, h3 {
 .name-outline:hover { color: var(--color-ink); }
 
 /* ==========================================================================
+   KINETIC LAYER — motion graphic, pointer response, dan ambient scene
+   ========================================================================== */
+
+/* Latar tetap dekoratif, tidak ikut menentukan lebar atau tinggi dokumen. */
+.ambient-scene {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 66rem;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.48;
+}
+.ambient-orbit {
+  position: absolute;
+  width: 32rem;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  border-radius: 50%;
+  animation: ambient-breathe 12s ease-in-out infinite;
+}
+.ambient-orbit::before,
+.ambient-orbit::after {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border: inherit;
+  border-radius: inherit;
+}
+.ambient-orbit::after { inset: 28%; }
+.ambient-orbit--one { top: -18rem; right: -12rem; }
+.ambient-orbit--two {
+  top: 29rem;
+  left: -24rem;
+  width: 42rem;
+  animation-delay: -6s;
+}
+.ambient-lines {
+  position: absolute;
+  top: 24rem;
+  left: 0;
+  width: 100%;
+  height: 32rem;
+  overflow: visible;
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-ink) 10%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 4 12;
+  animation: ambient-dash 24s linear infinite;
+}
+.ambient-cross {
+  position: absolute;
+  font: 400 1.5rem/1 var(--font-mono);
+  color: color-mix(in srgb, var(--color-ink) 24%, transparent);
+  animation: spin-slow 18s linear infinite;
+}
+.ambient-cross--one { top: 32rem; left: 8%; }
+.ambient-cross--two { top: 13rem; right: 7%; animation-direction: reverse; }
+
+/* Entrance karakter: mask menjaga garis, setiap huruf punya stagger sendiri. */
+.split-text,
+.split-text > span { display: block; }
+.kinetic-char {
+  display: inline-block;
+  translate: 0 115%;
+  rotate: 4deg;
+  transform-origin: left bottom;
+  transition:
+    translate 0.9s var(--ease-brutal),
+    rotate 1s var(--ease-brutal);
+}
+.reveal.is-in .kinetic-char { translate: 0 0; rotate: 0deg; }
+
+/* Hero: garis menyapu sekali saat masuk, lalu bidang merespons scroll. */
+.hero-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 25%, color-mix(in srgb, var(--color-card) 65%, transparent) 48%, transparent 70%);
+  translate: -130% 0;
+}
+.hero-panel.is-in::after { animation: hero-sheen 1.4s 0.4s var(--ease-brutal) both; }
+.hero-panel > :not(.hero-deco) { position: relative; z-index: 2; }
+
+/* Motion graphic identitas: seluruh bagian SVG memakai currentColor/theme. */
+.kinetic-portrait {
+  --pointer-x: 0px;
+  --pointer-y: 0px;
+  --scene-y: 0px;
+  position: relative;
+  flex: 1;
+  min-height: 15rem;
+  isolation: isolate;
+}
+.kinetic-portrait__stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(100%, 20rem);
+  aspect-ratio: 8 / 7;
+  translate: calc(-50% + var(--pointer-x)) calc(-50% + var(--pointer-y) + var(--scene-y));
+  transition: translate 0.5s var(--ease-brutal);
+}
+.kinetic-portrait__svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.kinetic-crosshair {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-paper) 16%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 2 7;
+}
+.kinetic-crosshair rect { fill: var(--color-flag); stroke: none; }
+.kinetic-orbit { transform-origin: 160px 140px; }
+.kinetic-orbit circle {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-paper) 46%, transparent);
+  stroke-width: 1;
+}
+.kinetic-orbit--outer { animation: spin-slow 32s linear infinite; }
+.kinetic-orbit--outer circle { stroke-dasharray: 1 4; }
+.kinetic-orbit .kinetic-orbit__accent {
+  stroke: var(--color-flag);
+  stroke-width: 2;
+  stroke-dasharray: 14 86;
+}
+.kinetic-orbit--type { animation: spin-reverse 38s linear infinite; }
+.kinetic-orbit--type text {
+  fill: var(--color-acid-text);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.kinetic-orbit--inner { animation: spin-slow 22s linear infinite; }
+.kinetic-orbit--inner circle { stroke-dasharray: 20 5 3 5; }
+.kinetic-orbit--inner rect { fill: var(--color-acid-text); }
+.kinetic-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 7.25rem;
+  aspect-ratio: 1;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid var(--color-paper);
+  border-radius: 50%;
+  background: var(--color-ink);
+  box-shadow: 7px 7px 0 var(--color-acid-deep);
+  translate: -50% -50%;
+  animation: core-breathe 5s ease-in-out infinite;
+}
+.kinetic-satellite {
+  position: absolute;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid var(--color-paper);
+  background: var(--color-flag);
+  animation: satellite-float 5s ease-in-out infinite;
+}
+.kinetic-satellite--one { top: 20%; right: 8%; }
+.kinetic-satellite--two { bottom: 16%; left: 9%; animation-delay: -2.5s; }
+.kinetic-coordinate {
+  position: absolute;
+  color: color-mix(in srgb, var(--color-paper) 62%, transparent);
+  font: 700 0.5rem/1 var(--font-mono);
+  letter-spacing: 0.16em;
+}
+.kinetic-coordinate--top { top: 5%; left: 50%; translate: -50% 0; }
+.kinetic-coordinate--bottom { bottom: 5%; left: 50%; translate: -50% 0; }
+.kinetic-scan {
+  position: absolute;
+  top: 21%;
+  left: 25%;
+  width: 50%;
+  height: 2px;
+  opacity: 0.45;
+  background: linear-gradient(90deg, transparent, var(--color-flag), transparent);
+  animation: kinetic-scan 4.5s ease-in-out infinite;
+}
+
+/* Visualisasi sinyal pada label live; murni dekoratif. */
+.signal-bars i {
+  display: block;
+  width: 3px;
+  height: 100%;
+  background: var(--color-acid-text);
+  transform-origin: bottom;
+  animation: signal-wave 1.4s ease-in-out infinite alternate;
+  animation-delay: calc(var(--bar) * -0.2s);
+}
+
+/* Sorot sekarang mengikuti kursor dengan radius yang lebih lembut. */
+[data-spotlight]::before {
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-acid) 65%, transparent), transparent 72%);
+}
+[data-magnetic] {
+  transition:
+    translate 0.35s var(--ease-brutal),
+    transform 0.2s var(--ease-brutal),
+    box-shadow 0.2s var(--ease-brutal),
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+[data-magnetic].is-magnetizing {
+  transition:
+    translate 0.08s linear,
+    transform 0.2s var(--ease-brutal),
+    box-shadow 0.2s var(--ease-brutal),
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+[data-pointer-scene]:hover .kinetic-orbit--outer { animation-duration: 15s; }
+[data-pointer-scene]:hover .kinetic-core { box-shadow: 10px 10px 0 var(--color-acid-deep); }
+
+/* Cursor ring adalah pelengkap, kursor native tetap aktif. */
+.cursor-follower {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.cursor-follower[data-visible='true'] { opacity: 1; }
+.cursor-follower__ring {
+  display: block;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1.5px solid var(--color-flag);
+  border-radius: 50%;
+  translate: -50% -50%;
+  scale: 1;
+  transition: scale 0.25s var(--ease-brutal), background-color 0.25s ease;
+}
+.cursor-follower[data-active='true'] .cursor-follower__ring {
+  scale: 1.65;
+  background: color-mix(in srgb, var(--color-acid) 16%, transparent);
+}
+.cursor-follower[data-pressed='true'] .cursor-follower__ring { scale: 0.8; }
+
+/* Ornamen ikut bergerak, bukan hanya panel besar. */
+.marquee-gem { animation: gem-spin 5s var(--ease-brutal) infinite; }
+.motion-control {
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.motion-control:hover { background: var(--color-acid); }
+.motion-control:disabled { cursor: not-allowed; opacity: 0.65; }
+.motion-control__icon { font-size: 0.625rem; letter-spacing: -0.18em; }
+.back-to-top svg circle { transition: stroke-dashoffset 0.15s linear; }
+.copy-confirmed { animation: copy-pop 0.45s var(--ease-brutal); }
+
+@keyframes ambient-breathe {
+  0%, 100% { scale: 1; opacity: 0.65; }
+  50% { scale: 1.08; opacity: 1; }
+}
+@keyframes ambient-dash { to { stroke-dashoffset: -160; } }
+@keyframes hero-sheen {
+  from { translate: -130% 0; opacity: 0; }
+  25% { opacity: 0.65; }
+  to { translate: 130% 0; opacity: 0; }
+}
+@keyframes spin-slow { to { rotate: 360deg; } }
+@keyframes spin-reverse { to { rotate: -360deg; } }
+@keyframes core-breathe {
+  0%, 100% { scale: 1; rotate: -2deg; }
+  50% { scale: 1.04; rotate: 2deg; }
+}
+@keyframes satellite-float {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  50% { translate: 5px -9px; rotate: 90deg; }
+}
+@keyframes kinetic-scan {
+  0%, 100% { translate: 0 0; opacity: 0; }
+  15%, 85% { opacity: 0.45; }
+  50% { translate: 0 8rem; opacity: 0.45; }
+}
+@keyframes signal-wave {
+  from { scale: 1 0.25; }
+  to { scale: 1 1; }
+}
+@keyframes gem-spin {
+  0%, 65%, 100% { rotate: 0deg; }
+  80% { rotate: 135deg; }
+}
+@keyframes copy-pop {
+  0% { scale: 0.85; }
+  60% { scale: 1.08; }
+  100% { scale: 1; }
+}
+
+/* Sakelar Motion off membekukan loop, tetapi reveal tetap menampilkan konten. */
+html[data-motion='paused'] .ambient-scene *,
+html[data-motion='paused'] .kinetic-portrait *,
+html[data-motion='paused'] .kinetic-core,
+html[data-motion='paused'] .kinetic-satellite,
+html[data-motion='paused'] .kinetic-scan,
+html[data-motion='paused'] .signal-bars i,
+html[data-motion='paused'] .marquee-track,
+html[data-motion='paused'] .marquee-gem,
+html[data-motion='paused'] .blink,
+html[data-motion='paused'] .float-soft {
+  animation-play-state: paused !important;
+}
+html[data-motion='paused'] [data-scroll-rule],
+html[data-motion='paused'] [data-parallax] {
+  animation: none !important;
+  translate: none !important;
+  scale: 1 !important;
+}
+html[data-motion='paused'] .hero-panel::after {
+  animation: none !important;
+  opacity: 0;
+}
+
+/* ==========================================================================
    AKSESIBILITAS — hormati prefers-reduced-motion.
    Semua gerak dimatikan dan konten langsung tampil (tidak ada yang tersembunyi).
    ========================================================================== */
@@ -432,6 +754,7 @@ h1, h2, h3 {
 
   .reveal,
   .mask-line > span,
+  .kinetic-char,
   .swap-next,
   .swap-prev,
   .gallery-img,

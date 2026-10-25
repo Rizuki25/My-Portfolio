@@ -2,6 +2,8 @@ import { useContent } from '../contexts/ContentContext'
 import BentoCell from '../components/BentoCell'
 import BrutalButton from '../components/BrutalButton'
 import CountUp from '../components/CountUp'
+import KineticPortrait from '../components/KineticPortrait'
+import SplitText from '../components/SplitText'
 import { BentoGrid, SectionShell } from '../components/Primitives'
 
 /**
@@ -25,7 +27,8 @@ export default function Home() {
           pad="lg"
           hover
           data-spotlight
-          className="bg-blueprint"
+          data-scroll-scene
+          className="hero-panel bg-blueprint overflow-hidden"
         >
           <div className="flex flex-wrap items-center gap-2 border-b-2 border-ink pb-2">
             <span className="label-mono bg-ink px-1.5 py-0.5 text-paper">
@@ -35,12 +38,12 @@ export default function Home() {
             <span className="label-mono ml-auto text-flag-text">01 / Home</span>
           </div>
 
-          <h1 className="mt-4 font-display text-[2.6rem] leading-[0.86] break-words sm:text-6xl lg:text-7xl">
+          <h1 aria-label={`${profile.firstName} ${profile.lastName}`} className="mt-4 font-display text-[2.6rem] leading-[0.86] break-words sm:text-6xl lg:text-7xl">
             <span className="mask-line">
-              <span style={{ '--line-delay': '60ms' }}>{profile.firstName}</span>
+              <SplitText text={profile.firstName} delay={100} />
             </span>
             <span className="mask-line text-outline">
-              <span style={{ '--line-delay': '170ms' }}>{profile.lastName}</span>
+              <SplitText text={profile.lastName} delay={260} step={38} />
             </span>
           </h1>
 
@@ -66,46 +69,33 @@ export default function Home() {
           </div>
         </BentoCell>
 
-        {/* ---------- monogram / potret (memiringkan diri mengikuti kursor) ---------- */}
+        {/* ---------- motion graphic identitas / potret ---------- */}
         <BentoCell
           tone="ink"
           pad="none"
-          data-tilt="7"
-          className="flex min-h-[13rem] flex-col justify-between overflow-hidden bg-hatch sm:min-h-full"
+          variant="right"
+          delay={120}
+          className="kinetic-card flex min-h-[18rem] flex-col justify-between overflow-hidden bg-hatch sm:min-h-full"
         >
-          <div className="flex items-start justify-between p-3">
-            <span className="label-mono text-acid-text">ID</span>
-            <span className="label-mono text-paper/70">F.01</span>
+          <div className="relative z-10 flex items-start justify-between p-3">
+            <span className="label-mono text-acid-text">Creative developer</span>
+            <span className="label-mono text-paper/70">F.01 / Live</span>
           </div>
 
-          <div className="flex items-center justify-center py-4">
-            {profile.avatarUrl ? (
-              <img
-                src={profile.avatarUrl}
-                alt={`Potret ${profile.name}`}
-                className="float-soft h-40 w-40 border-[3px] border-paper object-cover sm:h-48 sm:w-48"
-                loading="lazy"
-                decoding="async"
-              />
-            ) : (
-              <span
-                aria-hidden="true"
-                className="float-soft font-display text-[5.5rem] leading-none text-paper sm:text-7xl"
-              >
-                {profile.monogram}
-              </span>
-            )}
-          </div>
+          <KineticPortrait profile={profile} />
 
-          <div className="border-t-[3px] border-paper/25 bg-ink p-3">
+          <div className="relative z-10 flex items-center justify-between gap-3 border-t-[3px] border-paper/25 bg-ink p-3">
             <p className="font-mono text-[0.625rem] leading-relaxed tracking-[0.14em] text-paper/70 uppercase">
               {profile.role}
             </p>
+            <span className="signal-bars flex h-4 items-end gap-0.5" aria-hidden="true">
+              {[0, 1, 2, 3].map((bar) => <i key={bar} style={{ '--bar': bar }} />)}
+            </span>
           </div>
         </BentoCell>
 
         {/* ---------- ketersediaan ---------- */}
-        <BentoCell tone="flag" span="sm:col-span-2" pad="md" hover delay={60}>
+        <BentoCell tone="flag" span="sm:col-span-2" pad="md" hover data-spotlight variant="left" delay={60}>
           <div className="flex items-start gap-3">
             <span className="mt-1 flex h-4 w-4 shrink-0 items-center justify-center border-[3px] border-ink bg-card">
               <span className="blink h-1.5 w-1.5 bg-flag-text" />

@@ -21,7 +21,7 @@ export function useTheme() {
 
     // Ikuti warna chrome browser / address bar di mobile
     const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#211f1d' : '#f7ede5')
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#202924' : '#f5f2ea')
 
     try {
       localStorage.setItem(STORAGE_KEY, theme)

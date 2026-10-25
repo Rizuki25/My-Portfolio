@@ -60,6 +60,7 @@ export default function NavBar({ theme, onToggleTheme }) {
             onClick={onToggleTheme}
             aria-label={theme === 'dark' ? 'Aktifkan mode terang' : 'Aktifkan mode gelap'}
             aria-pressed={theme === 'dark'}
+            data-magnetic="0.14"
             className="flex h-9 w-9 items-center justify-center border-[3px] border-ink bg-card text-base shadow-[3px_3px_0_0_var(--color-ink)] transition-all duration-150 hover:-translate-x-[2px] hover:-translate-y-[2px] hover:bg-acid hover:shadow-[5px_5px_0_0_var(--color-ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_0_var(--color-ink)]"
           >
             <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>

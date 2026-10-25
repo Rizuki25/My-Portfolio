@@ -1,3 +1,5 @@
+import SplitText from './SplitText'
+
 /**
  * SectionHeader — kepala section bergaya editorial majalah teknis:
  * nomor section besar, garis rule, judul display, dan metadata mono.
@@ -12,9 +14,9 @@ export default function SectionHeader({ index, title, meta, description }) {
       <div className="flex items-end justify-between gap-3 pb-2">
         <div className="flex items-baseline gap-3">
           <span className="stamp label-mono text-flag-text">{index}</span>
-          <h2 className="font-display text-[1.75rem] leading-none sm:text-4xl lg:text-5xl">
+          <h2 aria-label={title} className="font-display text-[1.75rem] leading-none sm:text-4xl lg:text-5xl">
             <span className="mask-line">
-              <span style={{ '--line-delay': '90ms' }}>{title}</span>
+              <SplitText text={title} delay={90} step={28} />
             </span>
           </h2>
         </div>
