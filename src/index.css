@@ -745,6 +745,32 @@ html[data-motion='paused'] .hero-panel::after {
   opacity: 0;
 }
 
+/* Notifikasi penyimpanan admin — selalu terlihat tanpa menggulir halaman. */
+.admin-toast {
+  animation: admin-toast-enter 0.35s var(--ease-brutal) both;
+}
+.admin-toast-leave {
+  animation: admin-toast-leave 0.2s ease-in both;
+}
+.admin-toast-check {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: admin-toast-check 0.45s 0.2s ease-out forwards;
+}
+.admin-toast-progress {
+  animation: admin-toast-progress 5s linear forwards;
+}
+@keyframes admin-toast-enter {
+  from { opacity: 0; translate: 0 1.5rem; scale: 0.96; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
+}
+@keyframes admin-toast-leave {
+  from { opacity: 1; translate: 0 0; scale: 1; }
+  to { opacity: 0; translate: 0 0.75rem; scale: 0.98; }
+}
+@keyframes admin-toast-check { to { stroke-dashoffset: 0; } }
+@keyframes admin-toast-progress { to { scale: 0 1; } }
+
 /* ==========================================================================
    AKSESIBILITAS — hormati prefers-reduced-motion.
    Semua gerak dimatikan dan konten langsung tampil (tidak ada yang tersembunyi).

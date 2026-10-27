@@ -4,6 +4,7 @@ import { useTheme } from '../hooks/useTheme'
 import { hasSupabaseConfig, supabase } from '../lib/supabaseClient'
 import ProjectEditor from './ProjectEditor'
 import SectionEditor from './SectionEditor'
+import SaveToast from './SaveToast'
 import { PROJECT_COLUMNS } from './projectForm'
 
 const panelClass = 'border-[3px] border-ink bg-card shadow-[5px_5px_0_0_var(--color-ink)]'
@@ -112,6 +113,8 @@ export default function AdminDashboard() {
   const [siteError, setSiteError] = useState('')
   const [siteActionError, setSiteActionError] = useState('')
   const [siteBusy, setSiteBusy] = useState(false)
+  const [saveToast, setSaveToast] = useState(null)
+  const dismissSaveToast = useCallback(() => setSaveToast(null), [])
 
   useEffect(() => {
     if (!supabase) return undefined
@@ -279,6 +282,7 @@ export default function AdminDashboard() {
     setSiteBusy(true)
     setSiteActionError('')
     setNotice('')
+    setSaveToast(null)
     const { data, error } = await supabase.from('site_content')
       .upsert({ section_key: group.key, content }, { onConflict: 'section_key' })
       .select('section_key,content')
@@ -286,6 +290,7 @@ export default function AdminDashboard() {
 
     if (error) {
       setSiteActionError(error.message)
+      setSaveToast({ id: Date.now(), type: 'error', message: error.message })
     } else {
       setSiteRows((current) => ({
         ...current,
@@ -296,7 +301,9 @@ export default function AdminDashboard() {
         delete next[group.key]
         return next
       })
-      setNotice(`${group.label} berhasil disimpan dan tampil di portofolio.`)
+      const message = `${group.label} berhasil disimpan dan tampil di portofolio.`
+      setNotice(message)
+      setSaveToast({ id: Date.now(), type: 'success', message })
     }
     setSiteBusy(false)
   }
@@ -347,7 +354,7 @@ export default function AdminDashboard() {
           ))}
         </nav>
 
-        {notice ? <p role="status" className="mt-6 border-2 border-ink bg-paper-2 px-4 py-3 text-sm font-medium">{notice}</p> : null}
+        {notice && activeTab === 'projects' ? <p role="status" className="mt-6 border-2 border-ink bg-paper-2 px-4 py-3 text-sm font-medium">{notice}</p> : null}
 
         {activeTab === 'projects' ? <>
         <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -425,5 +432,10 @@ export default function AdminDashboard() {
     )
   }
 
-  return <DashboardFrame theme={theme} onToggleTheme={toggle}>{content}</DashboardFrame>
+  return (
+    <DashboardFrame theme={theme} onToggleTheme={toggle}>
+      {content}
+      {saveToast ? <SaveToast key={saveToast.id} message={saveToast.message} type={saveToast.type} onClose={dismissSaveToast} /> : null}
+    </DashboardFrame>
+  )
 }
